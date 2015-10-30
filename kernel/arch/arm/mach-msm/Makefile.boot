@@ -128,7 +128,6 @@ endif
 #	dtb-$(CONFIG_ARCH_MSM8226)	+= apq8026-v2-1080p-cdp.dtb
 #	dtb-$(CONFIG_ARCH_MSM8226)	+= apq8026-v2-720p-mtp.dtb
 #	dtb-$(CONFIG_ARCH_MSM8226)	+= apq8026-v2-1080p-mtp.dtb
-	dtb-$(CONFIG_MACH_ZEPPELI)	+= msm8926-sharp-zeppeli-720p.dtb
 	dtb-$(CONFIG_MACH_PB25)	+= msm8926-sharp-pb25-720p.dtb
 
 # FSM9XXX
