@@ -46,11 +46,6 @@
 #define CREATE_TRACE_POINTS
 #include <mach/trace_msm_low_power.h>
 
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-#include "clock.h"
-#include <../../../arch/arm/mach-msm/smd_private.h>
-#endif	/* CONFIG_SHSYS_CUST_DEBUG */
-
 #define SCM_CMD_TERMINATE_PC	(0x2)
 #define SCM_CMD_CORE_HOTPLUGGED (0x10)
 
@@ -92,21 +87,6 @@ enum {
 	MSM_PM_MODE_ATTR_IDLE,
 	MSM_PM_MODE_ATTR_NR,
 };
-
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-enum {
-	SH_PM_DEBUG_WAKEUP_REASON = 1U << 0,
-	SH_PM_DEBUG_SUSPEND_WFI = 1U << 1,
-	SH_PM_DEBUG_IDLE_WFI = 1U << 2,
-	SH_PM_DEBUG_CPU1_PC = 1U << 3,
-	SH_PM_DEBUG_IDLE_SLEEP_MODE = 1U << 4,
-};
-
-static int sh_pm_debug_mask = 0;
-module_param_named(
-	sh_debug_mask, sh_pm_debug_mask, int, S_IRUGO | S_IWUSR | S_IWGRP
-);
-#endif /* CONFIG_SHSYS_CUST_DEBUG */
 
 static char *msm_pm_mode_attr_labels[MSM_PM_MODE_ATTR_NR] = {
 	[MSM_PM_MODE_ATTR_SUSPEND] = "suspend_enabled",
@@ -255,9 +235,6 @@ static ssize_t msm_pm_mode_attr_store(struct kobject *kobj,
 {
 	int ret = -EINVAL;
 	int i;
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-	static uint32_t *pSleepSmemSleepDisabled = NULL;
-#endif	/* CONFIG_SHSYS_CUST_DEBUG */
 
 	for (i = 0; i < MSM_PM_SLEEP_MODE_NR; i++) {
 		struct kernel_param kp;
@@ -272,18 +249,6 @@ static ssize_t msm_pm_mode_attr_store(struct kobject *kobj,
 
 		cpu = GET_CPU_OF_ATTR(attr);
 		mode = &msm_pm_sleep_modes[MSM_PM_MODE(cpu, i)];
-
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-		if (pSleepSmemSleepDisabled == NULL) {
-			pSleepSmemSleepDisabled = smem_alloc(SMEM_SLEEP_POWER_COLLAPSE_DISABLED, sizeof(uint32_t));
-		}
-		if (pSleepSmemSleepDisabled != NULL && *pSleepSmemSleepDisabled) {
-			if ((cpu == 0) && ((i == 2) || (i == 3)) &&
-			   (!strcmp(attr->attr.name, msm_pm_mode_attr_labels[MSM_PM_MODE_ATTR_IDLE]))) {
-			   continue;
-			}
-		}
-#endif	/* CONFIG_SHSYS_CUST_DEBUG */
 
 		if (!strcmp(attr->attr.name,
 			msm_pm_mode_attr_labels[MSM_PM_MODE_ATTR_SUSPEND])) {
@@ -595,28 +560,8 @@ static bool __ref msm_pm_spm_power_collapse(
 
 	msm_jtag_save_state();
 
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-	if (!from_idle && notify_rpm)
-	{
-		if((cpu == 0) || ((cpu == 1) && (sh_pm_debug_mask & SH_PM_DEBUG_CPU1_PC)))
-		{
-			pr_info( "%s(): [CPU%u] Enter suspend power collapse.\n", __func__, cpu );
-		}
-	}
-#endif /* CONFIG_SHSYS_CUST_DEBUG */
-
 	collapsed = save_cpu_regs ?
 		!cpu_suspend(0, msm_pm_collapse) : msm_pm_pc_hotplug();
-
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-	if (!from_idle && notify_rpm)
-	{
-		if((cpu == 0) || ((cpu == 1) && (sh_pm_debug_mask & SH_PM_DEBUG_CPU1_PC)))
-		{
-			pr_info( "%s(): [CPU%u] Exit suspend power collapse. ret = %d\n", __func__, cpu, collapsed );
-		}
-	}
-#endif /* CONFIG_SHSYS_CUST_DEBUG */
 
 	if (save_cpu_regs) {
 		spin_lock(&cpu_cnt_lock);
@@ -624,7 +569,6 @@ static bool __ref msm_pm_spm_power_collapse(
 		BUG_ON(cpu_count > num_online_cpus());
 		spin_unlock(&cpu_cnt_lock);
 	}
-
 	msm_jtag_restore_state();
 
 	if (collapsed) {
@@ -737,19 +681,9 @@ static enum msm_pm_time_stats_id msm_pm_power_collapse(bool from_idle)
 	 * information is most useful from last core going down during
 	 * power collapse
 	 */
-#ifndef CONFIG_SHSYS_CUST_DEBUG
 	if ((!from_idle && cpu_online(cpu))
 			|| (MSM_PM_DEBUG_IDLE_CLK & msm_pm_debug_mask))
 		clock_debug_print_enabled();
-#else
-	if ((!from_idle && cpu_online(cpu))
-			|| (from_idle && (MSM_PM_DEBUG_IDLE_CLK & msm_pm_debug_mask))) {
-		spin_lock(&cpu_cnt_lock);
-		if ((cpu_count + 1) == num_online_cpus())
-			clock_debug_print_enabled();
-		spin_unlock(&cpu_cnt_lock);
-	}
-#endif /* CONFIG_SHSYS_CUST_DEBUG */
 
 	avsdscr = avs_get_avsdscr();
 	avscsr = avs_get_avscsr();
@@ -858,22 +792,12 @@ int msm_cpu_pm_enter_sleep(enum msm_pm_sleep_mode mode, bool from_idle)
 	bool collapsed = 1;
 	int exit_stat = -1;
 
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-	if (from_idle
-	    && (MSM_PM_DEBUG_IDLE & msm_pm_debug_mask || SH_PM_DEBUG_IDLE_SLEEP_MODE & sh_pm_debug_mask))
-		pr_info("CPU%u:%s:from idle mode %d\n",
-			smp_processor_id(), __func__, mode);
-	if (!from_idle)
-		pr_info("CPU%u:%s:from suspend mode:%d\n",
-			smp_processor_id(), __func__, mode);
-#else /* CONFIG_SHSYS_CUST_DEBUG */
 	if (MSM_PM_DEBUG_IDLE & msm_pm_debug_mask)
 		pr_info("CPU%u: %s: mode %d\n",
 			smp_processor_id(), __func__, mode);
 	if (!from_idle)
 		pr_info("CPU%u: %s mode:%d\n",
 			smp_processor_id(), __func__, mode);
-#endif /* CONFIG_SHSYS_CUST_DEBUG */
 
 	if (from_idle)
 		time = sched_clock();

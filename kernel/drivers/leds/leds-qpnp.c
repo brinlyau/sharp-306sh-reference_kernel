@@ -26,7 +26,7 @@
 #include <linux/delay.h>
 #include <linux/regulator/consumer.h>
 #include <linux/delay.h>
-#ifdef CONFIG_MACH_PB25
+#if defined(CONFIG_MACH_PA25) || defined(CONFIG_MACH_PB25)
 #include <linux/qpnp/qpnp-api.h>
 #endif
 
@@ -972,7 +972,7 @@ static int qpnp_flash_set(struct qpnp_led_data *led)
 				return 0;
 			}
 			#endif
-			#ifdef CONFIG_MACH_PB25
+			#if defined(CONFIG_MACH_PA25) || defined(CONFIG_MACH_PB25)
 			if(tmp8 <= 1) {
 				rc = qpnp_torch_control_enable(true);
 				if (rc) {
@@ -1408,7 +1408,7 @@ static int qpnp_flash_set(struct qpnp_led_data *led)
 					return rc;
 				}
 			}
-			#ifdef CONFIG_MACH_PB25
+			#if defined(CONFIG_MACH_PA25) || defined(CONFIG_MACH_PB25)
 			if(torch_cur_val <= 1) {
 				rc = qpnp_torch_control_enable(false);
 				if (rc) {

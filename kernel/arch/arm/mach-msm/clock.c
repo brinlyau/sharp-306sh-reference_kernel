@@ -28,18 +28,6 @@
 #include <mach/clk-provider.h>
 #include "clock.h"
 
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-enum {
-	SH_CLK_DEBUG_SET_INFO = 1U << 0,
-	SH_CLK_DEBUG_SET_RATE = 1U << 1,
-};
-
-static int sh_clk_debug_mask = 0;
-module_param_named(
-	sh_debug_mask, sh_clk_debug_mask, int, S_IRUGO | S_IWUSR | S_IWGRP
-);
-#endif /* CONFIG_SHSYS_CUST_DEBUG */
-
 struct handoff_clk {
 	struct list_head list;
 	struct clk *clk;
@@ -504,13 +492,6 @@ int clk_set_rate(struct clk *clk, unsigned long rate)
 
 	if (!is_rate_valid(clk, rate))
 		return -EINVAL;
-
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-	if (sh_clk_debug_mask & SH_CLK_DEBUG_SET_INFO || sh_clk_debug_mask & SH_CLK_DEBUG_SET_RATE)
-		pr_info("%s: clk=%s rate=%lu -> %lu\n", __func__, name, clk->rate, rate);
-	if (sh_clk_debug_mask & SH_CLK_DEBUG_SET_INFO)
-		WARN_ON(1);
-#endif /* CONFIG_SHSYS_CUST_DEBUG */
 
 	mutex_lock(&clk->prepare_lock);
 

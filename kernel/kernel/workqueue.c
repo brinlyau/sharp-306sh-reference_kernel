@@ -285,18 +285,6 @@ EXPORT_SYMBOL_GPL(system_nrt_freezable_wq);
 	for (i = 0; i < BUSY_WORKER_HASH_SIZE; i++)			\
 		hlist_for_each_entry(worker, pos, &gcwq->busy_hash[i], hentry)
 
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-#include <linux/module.h>
-enum {
-	SH_DEBUG_WORKQUEUE_EXPIRED = 1U << 0,
-	SH_DEBUG_WORKQUEUE_STARTED = 1U << 1,
-};
-static int sh_debug_mask = 0;
-module_param_named(
-	sh_debug_mask, sh_debug_mask, int, S_IRUGO | S_IWUSR | S_IWGRP
-);
-#endif
-
 static inline int __next_gcwq_cpu(int cpu, const struct cpumask *mask,
 				  unsigned int sw)
 {
@@ -1104,26 +1092,6 @@ static void delayed_work_timer_fn(unsigned long __data)
 {
 	struct delayed_work *dwork = (struct delayed_work *)__data;
 	struct cpu_workqueue_struct *cwq = get_work_cwq(&dwork->work);
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-
-	if (sh_debug_mask & SH_DEBUG_WORKQUEUE_EXPIRED) {
-
-		char symname[KSYM_NAME_LEN];
-		struct timer_list *timer = &dwork->timer;
-		unsigned int deferrable;
-
-		BUG_ON(!timer->base);
-
-		deferrable = ((unsigned int)(unsigned long)timer->base & TBASE_DEFERRABLE_FLAG);
-
-		if (lookup_symbol_name((unsigned long) dwork->work.func, symname) < 0) {
-			pr_info("%s: funcname %p,deferrable=%d\n", __func__,  dwork->work.func, deferrable);
-		}
-		else {
-			pr_info("%s: funcname %s,deferrable=%d\n", __func__,  symname, deferrable);
-		}
-	}
-#endif /* CONFIG_SHSYS_CUST_DEBUG */
 
 	__queue_work(smp_processor_id(), cwq->wq, &dwork->work);
 }
@@ -1167,22 +1135,6 @@ int queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
 
 		BUG_ON(timer_pending(timer));
 		BUG_ON(!list_empty(&work->entry));
-
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-		if (sh_debug_mask & SH_DEBUG_WORKQUEUE_STARTED) {
-
-			unsigned int deferrable;
-
-			BUG_ON(!timer->base);
-
-			deferrable = ((unsigned int)(unsigned long)timer->base & TBASE_DEFERRABLE_FLAG);
-
-			pr_info("%s: name :%s, pid %d delay=%ld CPU=%d deferrable=%d\n", __func__, current->comm, current->pid, delay, cpu, deferrable);
-			if( !strncmp(current->comm, "kworker", 7) ) {
-				dump_stack();
-			}
-		}
-#endif /* CONFIG_SHSYS_CUST_DEBUG */
 
 		timer_stats_timer_set_start_info(&dwork->timer);
 

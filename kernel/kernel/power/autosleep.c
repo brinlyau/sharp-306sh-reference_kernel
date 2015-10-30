@@ -12,19 +12,6 @@
 
 #include "power.h"
 
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-#include <linux/rtc.h>
-#include <linux/module.h>
-enum {
-	SH_DEBUG_SUSPEND = 1U << 0,
-};
-
-static int sh_debug_mask = 0;
-module_param_named(
-	sh_debug_mask, sh_debug_mask, int, S_IRUGO | S_IWUSR | S_IWGRP
-);
-#endif /* CONFIG_SHSYS_CUST_DEBUG */
-
 #ifdef CONFIG_SH_SLEEP_LOG
 #include <sharp/sh_sleeplog.h>
 #endif
@@ -73,15 +60,7 @@ static void try_to_suspend(struct work_struct *work)
 	 * system from trying to suspend and waking up in a tight loop.
 	 */
 	if (final_count == initial_count)
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-	{
-		if (sh_debug_mask & SH_DEBUG_SUSPEND)
-			pr_info("%s: pm_suspend returned with no event\n", __func__);
-#endif /* CONFIG_SHSYS_CUST_DEBUG */
 		schedule_timeout_uninterruptible(HZ / 2);
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-	}
-#endif /* CONFIG_SHSYS_CUST_DEBUG */
 
  out:
 	queue_up_suspend_work();
@@ -130,27 +109,11 @@ int pm_autosleep_set_state(suspend_state_t state)
 #ifdef CONFIG_SH_SLEEP_LOG
 	sh_set_screen_state(ts, state);
 #endif
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-	if (sh_debug_mask & SH_DEBUG_SUSPEND) {
-		struct rtc_time tm;
-		rtc_time_to_tm(ts.tv_sec, &tm);
-		pr_info("request_suspend_state: %s (%d->%d) at %lld "
-			"(%d-%02d-%02d %02d:%02d:%02d.%09lu UTC)\n",
-			state > PM_SUSPEND_ON ? "sleep" : "wakeup",
-			autosleep_state, state,
-			ktime_to_ns(ktime_get()),
-			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
-			tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
-	}
-#endif /* CONFIG_SHSYS_CUST_DEBUG */
 	autosleep_state = state;
 
 	__pm_relax(autosleep_ws);
 
 	if (state > PM_SUSPEND_ON) {
-#ifdef CONFIG_SHSYS_CUST_DEBUG
-		print_active_locks();
-#endif /* CONFIG_SHSYS_CUST_DEBUG */
 		pm_wakep_autosleep_enabled(true);
 		queue_up_suspend_work();
 	} else {
