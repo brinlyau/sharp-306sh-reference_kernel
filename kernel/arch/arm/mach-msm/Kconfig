@@ -1139,12 +1139,6 @@ config MACH_FSM9XXX_SURF
 	  chipset based SURF evaluation board and
 	  FFA board.
 
-config MACH_ZEPPELI
-	depends on ARCH_MSM8226
-	bool "SHARP ZEPPELI"
-	help
-	  Support for Sharp ZEPPELI.
-
 config MACH_PB25
 	depends on ARCH_MSM8226
 	bool "SHARP PB25"
