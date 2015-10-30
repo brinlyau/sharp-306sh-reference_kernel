@@ -6,7 +6,6 @@
  * Developed with the assistance of:
  *   (c) 2000 David L. Brown, Jr. (usb-storage@davidb.org)
  *   (c) 2003-2009 Alan Stern (stern@rowland.harvard.edu)
- * Copyright (C) 2013 SHARP CORPORATION
  *
  * Initial work by:
  *   (c) 1999 Michael Gee (michael@linuxspecific.com)
@@ -942,9 +941,6 @@ int usb_stor_probe1(struct us_data **pus,
 	/*
 	 * Allow 16-byte CDBs and thus > 2TB
 	 */
-#ifdef CONFIG_USB_STORAGE_SH_CUST_DETECT
-	host->by_usb = 1;
-#endif /* CONFIG_USB_STORAGE_SH_CUST_DETECT */
 	host->max_cmd_len = 16;
 	host->sg_tablesize = usb_stor_sg_tablesize(intf);
 	*pus = us = host_to_us(host);
