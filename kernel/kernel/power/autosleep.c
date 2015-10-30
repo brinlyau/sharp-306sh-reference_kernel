@@ -91,9 +91,10 @@ void pm_autosleep_unlock(void)
 
 int pm_autosleep_set_state(suspend_state_t state)
 {
-#if defined(CONFIG_SH_SLEEP_LOG) || defined(CONFIG_SHSYS_CUST_DEBUG)
+#ifdef CONFIG_SH_SLEEP_LOG
 	struct timespec ts;
 #endif
+
 #ifndef CONFIG_HIBERNATION
 	if (state >= PM_SUSPEND_MAX)
 		return -EINVAL;
@@ -103,7 +104,7 @@ int pm_autosleep_set_state(suspend_state_t state)
 
 	mutex_lock(&autosleep_lock);
 
-#if defined(CONFIG_SH_SLEEP_LOG) || defined(CONFIG_SHSYS_CUST_DEBUG)
+#ifdef CONFIG_SH_SLEEP_LOG
 	getnstimeofday(&ts);
 #endif
 #ifdef CONFIG_SH_SLEEP_LOG

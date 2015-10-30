@@ -94,11 +94,7 @@ static void *emergency_dload_mode_addr;
 
 /* Download mode master kill-switch */
 static int dload_set(const char *val, struct kernel_param *kp);
-#ifdef CONFIG_SHLOG_SYSTEM
-static int download_mode = 0;
-#else
 static int download_mode = 1;
-#endif
 module_param_call(download_mode, dload_set, param_get_int,
 			&download_mode, 0644);
 static int panic_prep_restart(struct notifier_block *this,
@@ -208,10 +204,6 @@ static void __msm_power_off(int lower_pshold)
 #ifdef CONFIG_MSM_DLOAD_MODE
 	set_dload_mode(0);
 #endif
-
-#ifdef CONFIG_SHLOG_SYSTEM
-	__raw_writel(0x00000000, restart_reason);
-#endif
 	pm8xxx_reset_pwr_off(0);
 	qpnp_pon_system_pwr_off(PON_POWER_OFF_SHUTDOWN);
 
@@ -280,11 +272,6 @@ static void msm_restart_prepare(const char *cmd)
 {
 #ifdef CONFIG_MSM_DLOAD_MODE
 
-#ifdef CONFIG_SHLOG_SYSTEM
-    if (cmd != NULL && !strncmp(cmd, "surfaceflinger", 14))
-        in_panic = 1;
-#endif
-
 	/* This looks like a normal reboot at this point. */
 	set_dload_mode(0);
 
@@ -302,10 +289,6 @@ static void msm_restart_prepare(const char *cmd)
 
 	pm8xxx_reset_pwr_off(1);
 
-#ifdef CONFIG_SHLOG_SYSTEM
-	__raw_writel(0x00000000, restart_reason);
-#endif
-
 	/* Hard reset the PMIC unless memory contents must be maintained. */
 	if (get_dload_mode() || (cmd != NULL && cmd[0] != '\0'))
 		qpnp_pon_system_pwr_off(PON_POWER_OFF_WARM_RESET);
@@ -317,18 +300,6 @@ static void msm_restart_prepare(const char *cmd)
 			__raw_writel(0x77665500, restart_reason);
 		} else if (!strncmp(cmd, "recovery", 8)) {
 			__raw_writel(0x77665502, restart_reason);
-#ifdef CONFIG_SHLOG_SYSTEM
-		} else if (!strncmp(cmd, "emergency", 9)) {
-			if (restart_mode == RESTART_MODEM_CRASH) {
-				__raw_writel(0x77665595, restart_reason);
-			} else if (restart_mode == RESTART_L1_ERROR) {
-				__raw_writel(0x77665593, restart_reason);
-			} else {
-				__raw_writel(0x77665590, restart_reason);
-			}
-		} else if (!strncmp(cmd, "surfaceflinger", 14)) {
-			__raw_writel(0x77665594, restart_reason);
-#endif
 		} else if (!strcmp(cmd, "rtc")) {
 			__raw_writel(0x77665503, restart_reason);
 		} else if (!strncmp(cmd, "oem-", 4)) {
@@ -475,10 +446,6 @@ static int __init msm_restart_init(void)
 	msm_tmr0_base = msm_timer_get_timer0_base();
 	restart_reason = MSM_IMEM_BASE + RESTART_REASON_ADDR;
 	pm_power_off = msm_power_off;
-
-#ifdef CONFIG_SHLOG_SYSTEM
-	__raw_writel(0x77665577, restart_reason);
-#endif
 
 	if (scm_is_call_available(SCM_SVC_PWR, SCM_IO_DISABLE_PMIC_ARBITER) > 0)
 		scm_pmic_arbiter_disable_supported = true;
