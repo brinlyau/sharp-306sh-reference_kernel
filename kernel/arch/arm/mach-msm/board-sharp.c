@@ -47,9 +47,9 @@
 #include <mach/msm_smem.h>
 #include <linux/msm_thermal.h>
 #if defined(CONFIG_SHSYS_CUST)
-#if defined(CONFIG_SHIRDA) || defined(CONFIG_SERIAL_MSM_HSL_CONSOLE)
+#ifdef CONFIG_SERIAL_MSM_HSL_CONSOLE
 #include <mach/msm_serial_hs_lite.h>
-#endif /* defined(CONFIG_SHIRDA) || defined(CONFIG_SERIAL_MSM_HSL_CONSOLE) */
+#endif /* defined(CONFIG_SERIAL_MSM_HSL_CONSOLE) */
 #endif /* defined(CONFIG_SHSYS_CUST) */
 #include "board-dt.h"
 #include "clock.h"
@@ -75,7 +75,7 @@ static int msm8226_paddr_to_memtype(unsigned int paddr)
 }
 
 #if defined(CONFIG_SHSYS_CUST)
-#if defined(CONFIG_SHIRDA) || defined(CONFIG_SERIAL_MSM_HSL_CONSOLE)
+#ifdef CONFIG_SERIAL_MSM_HSL_CONSOLE
 static struct msm_serial_hslite_platform_data blsp1_uart1_data = {
 	.config_gpio = 1,
 	.uart_tx_gpio = 0,
@@ -83,15 +83,11 @@ static struct msm_serial_hslite_platform_data blsp1_uart1_data = {
 //	.uart_cts_gpio,
 //	.uart_rfr_gpio,
 	.use_pm = 1,
-#if defined(CONFIG_SHIRDA)
-	.line = 1,
-#else /* defined(CONFIG_SHFELICA) */
 #if defined(CONFIG_SERIAL_MSM_HSL_CONSOLE)
 	.line = 0,
 #endif /* defined(CONFIG_SERIAL_MSM_HSL_CONSOLE) */
-#endif /* defined(CONFIG_SHIRDA) */
 };
-#endif /* defined(CONFIG_SHIRDA) || defined(CONFIG_SERIAL_MSM_HSL_CONSOLE) */
+#endif /* defined(CONFIG_SERIAL_MSM_HSL_CONSOLE) */
 #endif /* defined(CONFIG_SHSYS_CUST) */
 
 static struct of_dev_auxdata msm8226_auxdata_lookup[] __initdata = {
@@ -110,10 +106,10 @@ static struct of_dev_auxdata msm8226_auxdata_lookup[] __initdata = {
 	OF_DEV_AUXDATA("qcom,hsic-host", 0xF9A00000, "msm_hsic_host", NULL),
 
 #if defined(CONFIG_SHSYS_CUST)
-#if defined(CONFIG_SHIRDA) || defined(CONFIG_SERIAL_MSM_HSL_CONSOLE)
+#ifdef CONFIG_SERIAL_MSM_HSL_CONSOLE
 	OF_DEV_AUXDATA("qcom,msm-lsuart-v14", 0xF991D000, \
 			"f991d000.serial", &blsp1_uart1_data),
-#endif /* defined(CONFIG_SHIRDA) || defined(CONFIG_SERIAL_MSM_HSL_CONSOLE) */
+#endif /* defined (CONFIG_SERIAL_MSM_HSL_CONSOLE) */
 #endif /* defined(CONFIG_SHSYS_CUST) */
 	{}
 };
