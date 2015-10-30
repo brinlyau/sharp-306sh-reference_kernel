@@ -1,6 +1,4 @@
-/* drivers/usb/storage/usb.c
- *
- * Driver for USB Mass Storage compliant devices
+/* Driver for USB Mass Storage compliant devices
  *
  * Current development and maintenance by:
  *   (c) 1999-2003 Matthew Dharm (mdharm-usb@one-eyed-alien.net)

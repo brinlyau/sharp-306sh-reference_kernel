@@ -189,52 +189,6 @@ config USB_MSM_OTG_SH_CUST
         help
          Add sharp custamize for "msm otg".
 
-config USB_MSM_OTG_SH_CUST_EYEPATTERN
-    bool "eye pattern Sharp customize ---> "
-    depends on USB_MSM_OTG_SH_CUST
-    default n
-    help
-        Enable this to adjust eye pattern for sharp devices.
-
-config USB_MSM_OTG_SH_CUST_OVERRIDE_HS
-    bool "Customized High speed eye pattern type for Sharp devices "
-    depends on USB_MSM_OTG_SH_CUST_EYEPATTERN
-    default y
-    help
-        To Adjust Eye Patern of USB High Speed.
-        default say "y".
-
-config USB_MSM_OTG_SH_CUST_OVERRIDE_HS_TYPE_B
-    bool "Customized High speed eye pattern type for Sharp devices type B"
-    depends on USB_MSM_OTG_SH_CUST_EYEPATTERN
-    default n
-    help
-        To Adjust Eye Patern of USB High Speed.
-        Eye Pattern type B selected.
-
-config USB_MSM_OTG_SH_CUST_OVERRIDE_HS_TYPE_C
-    bool "Customized High speed eye pattern type for Sharp devices type C"
-    depends on USB_MSM_OTG_SH_CUST_EYEPATTERN
-    default n
-    help
-        To Adjust Eye Patern of USB High Speed.
-        Eye Pattern type C selected.
-
-config USB_MSM_OTG_SH_CUST_OVERRIDE_HS_TYPE_D
-    bool "Customized High speed eye pattern type for Sharp devices type D"
-    depends on USB_MSM_OTG_SH_CUST_EYEPATTERN
-    default n
-    help
-        To Adjust Eye Patern of USB High Speed.
-        Eye Pattern type D selected.
-
-config USB_MSM_OTG_SH_CUST_OVERRIDE_FS
-    bool "eye pattern Sharp customize Full speed "
-    depends on USB_MSM_OTG_SH_CUST_EYEPATTERN
-    default n
-    help
-        To Adjust Eye Patern of USB Full Speed.
-
 config USB_MSM_OTG_SH_CUST_MHL
     bool "MHL for USB Sharp customize"
     depends on USB_MSM_OTG_SH_CUST && !USB_MSM_OTG_SH_CUST_SWIC
@@ -255,6 +209,7 @@ config USB_MSM_OTG_SH_CUST_CHARGE
     default n
     help
 	  Enable this to support sharp customize charger.
+
 config USB_MSM_OTG_DISABLE_INTERNAL_ID_PULLUP
     bool "disable USB_ID internal pullup"
     depends on USB_MSM_OTG_SH_CUST

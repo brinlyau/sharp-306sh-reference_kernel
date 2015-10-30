@@ -170,127 +170,6 @@ static bool msm_otg_id_check(void);
 #define OTG_ID_CHECK_WAIT_TIME       (1)
 #endif /* CONFIG_USB_MSM_OTG_SH_CUST */
 
-#ifdef CONFIG_USB_MSM_OTG_SH_CUST_EYEPATTERN
-static void msm_otg_set_override(struct otg_ulpi_modify *ulpi_tbl);
-
-#define OTG_ULPI_MODIFY_MAX (255)
-static struct otg_ulpi_modify ulpi_val_override[] = {
-#ifdef CONFIG_USB_MSM_OTG_SH_CUST_OVERRIDE_HS
-	/* PARAMETER_OVERRIDE_B * 1110: + 22% */
-	{
-		.reg =0x81,
-		.mask=0x0F,
-		.val =0x0E,
-	},
-	/* PARAMETER_OVERRIDE_C * 11: - 10% */
-	{
-		.reg =0x82,
-		.mask=0x0C,
-		.val =0x0C,
-	},
-	/* PARAMETER_OVERRIDE_D * 11: Source impedance is decreased by approximately 4 */
-	{
-		.reg =0x83,
-		.mask=0x30,
-		.val =0x30,
-	},
-#endif /* CONFIG_USB_MSM_OTG_SH_CUST_OVERRIDE_HS */
-#ifdef CONFIG_USB_MSM_OTG_SH_CUST_OVERRIDE_HS_TYPE_B
-	/* PARAMETER_OVERRIDE_B * 0110: + 6% */
-	{
-		.reg =0x81,
-		.mask=0x0F,
-		.val =0x06,
-	},
-	/* PARAMETER_OVERRIDE_C * 11: - 10% */
-	{
-		.reg =0x82,
-		.mask=0x0C,
-		.val =0x0C,
-	},
-	/* PARAMETER_OVERRIDE_D * 11: Source impedance is decreased by approximately 4 */
-	{
-		.reg =0x83,
-		.mask=0x30,
-		.val =0x30,
-	},
-#endif /* CONFIG_USB_MSM_OTG_SH_CUST_OVERRIDE_HS_TYPE_B */
-#ifdef CONFIG_USB_MSM_OTG_SH_CUST_OVERRIDE_HS_TYPE_C
-	/* PARAMETER_OVERRIDE_B * 0011: + 0% */
-	{
-		.reg =0x81,
-		.mask=0x0F,
-		.val =0x03,
-	},
-	/* PARAMETER_OVERRIDE_C * 11: - 10% */
-	{
-		.reg =0x82,
-		.mask=0x0C,
-		.val =0x0C,
-	},
-	/* PARAMETER_OVERRIDE_D * 11: Source impedance is decreased by approximately 4 */
-	{
-		.reg =0x83,
-		.mask=0x30,
-		.val =0x30,
-	},
-#endif /* CONFIG_USB_MSM_OTG_SH_CUST_OVERRIDE_HS_TYPE_C */
-#ifdef CONFIG_USB_MSM_OTG_SH_CUST_OVERRIDE_HS_TYPE_D
-	/* PARAMETER_OVERRIDE_B * 1010: + 14% */
-	{
-		.reg =0x81,
-		.mask=0x0F,
-		.val =0x0A,
-	},
-	/* PARAMETER_OVERRIDE_C * 11: - 10% */
-	{
-		.reg =0x82,
-		.mask=0x0C,
-		.val =0x0C,
-	},
-	/* PARAMETER_OVERRIDE_D * 11: Source impedance is decreased by approximately 4 */
-	{
-		.reg =0x83,
-		.mask=0x30,
-		.val =0x30,
-	},
-#endif /* CONFIG_USB_MSM_OTG_SH_CUST_OVERRIDE_HS_TYPE_D */
-	{
-		.reg = OTG_ULPI_MODIFY_MAX,
-		.mask= OTG_ULPI_MODIFY_MAX,
-		.val = OTG_ULPI_MODIFY_MAX,
-	},
-};
-
-/* for host */
-static struct otg_ulpi_modify ulpi_val_override_host[] = {
-	/* PARAMETER_OVERRIDE_B * 0011: + 0% */
-	{
-		.reg =0x81,
-		.mask=0x0F,
-		.val =0x03,
-	},
-	/* PARAMETER_OVERRIDE_C * 11: - 10% */
-	{
-		.reg =0x82,
-		.mask=0x0C,
-		.val =0x0C,
-	},
-	/* PARAMETER_OVERRIDE_D * 11: Source impedance is decreased by approximately 4 */
-	{
-		.reg =0x83,
-		.mask=0x30,
-		.val =0x30,
-	},
-	{
-		.reg = OTG_ULPI_MODIFY_MAX,
-		.mask= OTG_ULPI_MODIFY_MAX,
-		.val = OTG_ULPI_MODIFY_MAX,
-	},
-};
-
-#endif /* CONFIG_USB_MSM_OTG_SH_CUST_EYEPATTERN */
-
 static bool aca_id_turned_on;
 static bool legacy_power_supply;
 static inline bool aca_enabled(void)
@@ -860,11 +739,6 @@ static int msm_otg_reset(struct usb_phy *phy)
 	if (motg->caps & ALLOW_VDD_MIN_WITH_RETENTION_DISABLED)
 		writel_relaxed(readl_relaxed(USB_OTGSC) & ~(OTGSC_IDPU),
 								USB_OTGSC);
-
-#ifdef CONFIG_USB_MSM_OTG_SH_CUST_EYEPATTERN
-	if( motg->ulpi_write_modify)
-		msm_otg_set_override(motg->ulpi_write_modify );
-#endif /* CONFIG_USB_MSM_OTG_SH_CUST_EYEPATTERN */
 
 	return 0;
 }
@@ -2293,31 +2167,6 @@ static void msm_otg_chg_check_timer_func(unsigned long data)
 		queue_work(system_nrt_wq, &motg->sm_work);
 	}
 }
-#ifdef CONFIG_USB_MSM_OTG_SH_CUST_EYEPATTERN
-static void msm_otg_set_override(struct otg_ulpi_modify *ulpi_tbl)
-{
-	u32 reg_val=0;
-	u32 set_val=0;
-	struct msm_otg *motg = the_msm_otg;
-	struct usb_phy *phy = &motg->phy;
-
-	if( !ulpi_tbl )
-		return ;
-
-	while( ulpi_tbl->reg != OTG_ULPI_MODIFY_MAX ){
-
-		reg_val = ulpi_read(phy , ulpi_tbl->reg );
-
-		set_val = (reg_val & ~ulpi_tbl->mask ) | ulpi_tbl->val ;
-		ulpi_write(phy, set_val, (u32)ulpi_tbl->reg);
-
-		pr_debug("set override reg=0x%02x val=0x%02x " , ulpi_tbl->reg , set_val);
-		ulpi_tbl++;
-
-	}
-
-}
-#endif /* CONFIG_USB_MSM_OTG_SH_CUST_EYEPATTERN */
 
 static bool msm_chg_aca_detect(struct msm_otg *motg)
 {
@@ -5757,9 +5606,6 @@ static int __init msm_otg_probe(struct platform_device *pdev)
 
 	if (motg->pdata->enable_lpm_on_dev_suspend)
 		motg->caps |= ALLOW_LPM_ON_DEV_SUSPEND;
-#ifdef CONFIG_USB_MSM_OTG_SH_CUST_EYEPATTERN
-	motg->ulpi_write_modify = ulpi_val_override;
-#endif /* CONFIG_USB_MSM_OTG_SH_CUST_EYEPATTERN */
 
 	if (motg->pdata->disable_retention_with_vdd_min)
 		motg->caps |= ALLOW_VDD_MIN_WITH_RETENTION_DISABLED;

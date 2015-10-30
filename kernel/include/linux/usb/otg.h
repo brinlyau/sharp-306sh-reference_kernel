@@ -163,18 +163,6 @@ struct usb_phy {
 #endif /* CONFIG_USB_SH_CUST_NON_STANDARD_CHARGE */
 };
 
-#ifdef CONFIG_USB_MSM_OTG_SH_CUST_EYEPATTERN
-struct otg_ulpi_modify{
-	/* write ulpi register */
-	int	reg;
-	/* write mask bit */
-	int	mask;
-	/* write data */
-	int	val;
-};
-#endif /* CONFIG_USB_MSM_OTG_SH_CUST_EYEPATTERN */
-
-
 /* for board-specific init logic */
 extern int usb_set_transceiver(struct usb_phy *);
 

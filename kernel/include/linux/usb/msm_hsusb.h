@@ -446,12 +446,6 @@ struct msm_otg {
 #define XO_SHUTDOWN			BIT(2)
 #define CLOCKS_DOWN			BIT(3)
 #define PHY_REGULATORS_LPM	BIT(4)
-#ifdef CONFIG_USB_MSM_OTG_SH_CUST_EYEPATTERN
-	/* 
-	 * msm otg reset setting ulpi data
-	 */
-	struct otg_ulpi_modify* ulpi_write_modify;
-#endif /* CONFIG_USB_MSM_OTG_SH_CUST_EYEPATTERN */
 	int reset_counter;
 	unsigned long b_last_se0_sess;
 	unsigned long tmouts;
