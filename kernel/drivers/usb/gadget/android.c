@@ -100,10 +100,8 @@
 #include "u_rmnet_ctrl_qti.c"
 #include "u_ctrl_hsic.c"
 #include "u_data_hsic.c"
-#ifndef CONFIG_USB_ANDROID_SH_SERIALS
 #include "u_ctrl_hsuart.c"
 #include "u_data_hsuart.c"
-#endif /* CONFIG_USB_ANDROID_SH_SERIALS */
 #ifdef CONFIG_USB_ANDROID_SH_CUST
 #include "f_obex.c"
 #endif /* CONFIG_USB_ANDROID_SH_CUST */
@@ -721,34 +719,7 @@ static ssize_t acm_transports_store(
 }
 
 static DEVICE_ATTR(acm_transports, S_IWUSR, NULL, acm_transports_store);
-
-#ifdef CONFIG_USB_ANDROID_SH_SERIALS
-/* enabled ACM transport names - "serial_hsic[,serial_hsusb]"*/
-static char acm_xport_names[32];
-static ssize_t acm_xport_names_store(
-		struct device *device, struct device_attribute *attr,
-		const char *buff, size_t size)
-{
-	strlcpy(acm_xport_names, buff, sizeof(acm_xport_names));
-
-	return size;
-}
-static ssize_t acm_xport_names_show(struct device *dev,
-		struct device_attribute *attr, char *buf)
-{
-	return snprintf(buf, PAGE_SIZE, "%s\n", acm_xport_names);
-}
-static struct device_attribute dev_attr_acm_xport_names =
-				__ATTR(acm_transport_names, S_IRUGO | S_IWUSR,
-				acm_xport_names_show,
-				acm_xport_names_store);
-#endif /* CONFIG_USB_ANDROID_SH_SERIALS */
-
 static struct device_attribute *acm_function_attributes[] = {
-#ifdef CONFIG_USB_ANDROID_SH_SERIALS
-		&dev_attr_acm_iInterface,
-		&dev_attr_acm_xport_names,
-#endif /* CONFIG_USB_ANDROID_SH_SERIALS */
 		&dev_attr_acm_transports,
 		NULL
 };
@@ -762,36 +733,6 @@ static int
 acm_function_bind_config(struct android_usb_function *f,
 		struct usb_configuration *c)
 {
-#ifdef CONFIG_USB_ANDROID_SH_SERIALS
-	char *name, *xport_name = NULL;
-	char buf[32], *b, xport_name_buf[32], *tb;
-	int err = -1, i;
-	static int acm_initialized, ports;
-
-	if (acm_initialized)
-		goto bind_config;
-
-	acm_initialized = 1;
-	strlcpy(buf, acm_transports, sizeof(buf));
-	b = strim(buf);
-
-	strlcpy(xport_name_buf, acm_xport_names, sizeof(acm_xport_names));
-	tb = strim(xport_name_buf);
-
-	while (b) {
-		name = strsep(&b, ",");
-		if (name) {
-			if (tb)
-				xport_name = strsep(&tb, ",");
-			err = acm_init_port(ports, name);
-			if (err) {
-				pr_err("acm: Cannot open port '%s'", name);
-				goto out;
-			}
-			ports++;
-		}
-	}
-#else /* CONFIG_USB_ANDROID_SH_SERIALS */
 	char *name;
 	char buf[32], *b;
 	int err = -1, i;
@@ -816,7 +757,6 @@ acm_function_bind_config(struct android_usb_function *f,
 			ports++;
 		}
 	}
-#endif /* CONFIG_USB_ANDROID_SH_SERIALS */
 	err = acm_port_setup(c);
 	if (err) {
 		pr_err("acm: Cannot setup transports");
@@ -837,11 +777,7 @@ out:
 }
 
 static struct android_usb_function acm_function = {
-#ifdef CONFIG_USB_ANDROID_SH_SERIALS
-	.name		= "modem",
-#else /* CONFIG_USB_ANDROID_SH_SERIALS */
 	.name		= "acm",
-#endif /* CONFIG_USB_ANDROID_SH_SERIALS */
 	.cleanup	= acm_function_cleanup,
 	.bind_config	= acm_function_bind_config,
 	.attributes	= acm_function_attributes,
@@ -2582,11 +2518,7 @@ static struct android_usb_function *supported_functions[] = {
 	&audio_source_function,
 #endif
 	&obex_function,
-#ifdef CONFIG_USB_ANDROID_SH_SERIALS
-	&mdlm_function,
-#else /* CONFIG_USB_ANDROID_SH_SERIALS */
 	&serial_function,
-#endif /* CONFIG_USB_ANDROID_SH_SERIALS */
 	&acm_function,
 #ifdef CONFIG_USB_ANDROID_SH_UMS
 	&msc_function,

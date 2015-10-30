@@ -23,10 +23,6 @@ static char serial_string[USB_STRING_DESC_LEN];
 #define USB_I_INT_STRING_DESC_LEN	64
 
 static char obex_iInterface[USB_I_INT_STRING_DESC_LEN];
-#ifdef CONFIG_USB_ANDROID_SH_SERIALS
-static char mdlm_iInterface[USB_I_INT_STRING_DESC_LEN];
-static char acm_iInterface[USB_I_INT_STRING_DESC_LEN];
-#endif /* CONFIG_USB_ANDROID_SH_SERIALS */
 
 #ifdef CONFIG_USB_ANDROID_SH_UMS
 static char msc_iInterface[USB_I_INT_STRING_DESC_LEN];
@@ -67,10 +63,6 @@ DESCRIPTOR_STRING_ATTR(iProduct, product_string, USB_STRING_DESC_LEN)
 DESCRIPTOR_STRING_ATTR(iSerial, serial_string, USB_STRING_DESC_LEN)
 
 DESCRIPTOR_STRING_ATTR(obex_iInterface, obex_iInterface, USB_I_INT_STRING_DESC_LEN)
-#ifdef CONFIG_USB_ANDROID_SH_SERIALS
-DESCRIPTOR_STRING_ATTR(mdlm_iInterface, mdlm_iInterface, USB_I_INT_STRING_DESC_LEN)
-DESCRIPTOR_STRING_ATTR(acm_iInterface, acm_iInterface, USB_I_INT_STRING_DESC_LEN)
-#endif /* CONFIG_USB_ANDROID_SH_SERIALS */
 
 #ifdef CONFIG_USB_ANDROID_SH_UMS
 DESCRIPTOR_STRING_ATTR(msc_iInterface, msc_iInterface, USB_I_INT_STRING_DESC_LEN)
