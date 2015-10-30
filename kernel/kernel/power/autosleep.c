@@ -12,10 +12,6 @@
 
 #include "power.h"
 
-#ifdef CONFIG_SH_SLEEP_LOG
-#include <sharp/sh_sleeplog.h>
-#endif
-
 static suspend_state_t autosleep_state;
 static struct workqueue_struct *autosleep_wq;
 /*
@@ -91,10 +87,6 @@ void pm_autosleep_unlock(void)
 
 int pm_autosleep_set_state(suspend_state_t state)
 {
-#ifdef CONFIG_SH_SLEEP_LOG
-	struct timespec ts;
-#endif
-
 #ifndef CONFIG_HIBERNATION
 	if (state >= PM_SUSPEND_MAX)
 		return -EINVAL;
@@ -104,12 +96,6 @@ int pm_autosleep_set_state(suspend_state_t state)
 
 	mutex_lock(&autosleep_lock);
 
-#ifdef CONFIG_SH_SLEEP_LOG
-	getnstimeofday(&ts);
-#endif
-#ifdef CONFIG_SH_SLEEP_LOG
-	sh_set_screen_state(ts, state);
-#endif
 	autosleep_state = state;
 
 	__pm_relax(autosleep_ws);

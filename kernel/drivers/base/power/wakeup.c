@@ -761,12 +761,6 @@ void pm_wakep_autosleep_enabled(bool set)
 	}
 	rcu_read_unlock();
 }
-#ifdef CONFIG_SH_SLEEP_LOG
-char *sh_write_buffer_wakeup_sources(char *buffer)
-{
-	return sh_write_buffer_wakeup_sources_internal(buffer, &wakeup_sources);
-}
-#endif /* CONFIG_SH_SLEEP_LOG */
 #endif /* CONFIG_PM_AUTOSLEEP */
 
 static struct dentry *wakeup_sources_stats_dentry;

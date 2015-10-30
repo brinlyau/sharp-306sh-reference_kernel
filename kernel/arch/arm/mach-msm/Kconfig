@@ -3077,10 +3077,6 @@ config SHSYS_CUST_DEBUG
 	default y
 	bool "SHARP SYSTEM CUSTOMIZE DEBUG"
 
-config SH_SLEEP_LOG
-	default y
-	bool "SHARP CUSTOMIZE SLEEP LOG"
-
 config SH_SHUTDOWN_FAILSAFE
        bool "SHARP CUSTOMIZE Shutdown fail safe"
        default y
