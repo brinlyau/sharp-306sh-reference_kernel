@@ -411,10 +411,6 @@ static void get_boot_mode_from_smem(void)
 			is_offcharge_bootmode = false;
 			break;
 	}
-#ifdef CONFIG_USB_DEBUG_SH_LOG
-	pr_info("%s: bootmode 0x%04x softupdateflag %d \n",
-				__func__, bootmode, smem_softupdateflg);
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 #endif /* CONFIG_SHBOOT_CUST */
 	return;
 }
@@ -431,9 +427,6 @@ static int get_diag_enable_from_smem(void)
 		return 0;
 	}
 	smem_diag_enable = p_smem_addr->shusb_qxdm_ena_flag;
-#ifdef CONFIG_USB_DEBUG_SH_LOG
-	pr_info("%s: diag_enable smem:%d\n", __func__, smem_diag_enable);
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 	return !!smem_diag_enable;
 }
 
@@ -449,9 +442,6 @@ static int get_charge_enable_from_smem(void)
 		return 0;
 	}
 	smem_charge_enable = p_smem_addr->shusb_usb_charge_ena_flag;
-#ifdef CONFIG_USB_DEBUG_SH_LOG
-	pr_info("%s: charge_enable smem:%d\n", __func__, smem_charge_enable);
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 	return !!smem_charge_enable;
 }
 #endif /* CONFIG_USB_ANDROID_SH_CUST */
@@ -1409,10 +1399,6 @@ static ssize_t unlocked_store(struct device *pdev, struct device_attribute *attr
 	} else if (!unlocked && dev->unlocked) {
 		dev->unlocked = false;
 	} else {
-#ifdef CONFIG_USB_DEBUG_SH_LOG
-		pr_info("unlocked_store: already %s\n",
-				dev->unlocked ? "unlocked" : "locked");
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 	}
 	return size;
 }
@@ -1933,11 +1919,9 @@ rndis_function_bind_config(struct android_usb_function *f,
 		return -1;
 	}
 
-#ifdef CONFIG_USB_DEBUG_SH_LOG
 	pr_info("%s MAC: %02X:%02X:%02X:%02X:%02X:%02X\n", __func__,
 		rndis->ethaddr[0], rndis->ethaddr[1], rndis->ethaddr[2],
 		rndis->ethaddr[3], rndis->ethaddr[4], rndis->ethaddr[5]);
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 
 	if (rndis->ethaddr[0])
 		ret = gether_setup_name(c->cdev->gadget, NULL, "rndis");
@@ -3050,9 +3034,6 @@ static ssize_t enable_store(struct device *pdev, struct device_attribute *attr,
 	if (enabled && !dev->enabled) {
 #ifdef CONFIG_USB_ANDROID_SH_CUST
 		if (!dev->unlocked) {
-#ifdef CONFIG_USB_DEBUG_SH_LOG
-			pr_info("enable_store: locked \n");
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 			mutex_unlock(&dev->mutex);
 			return size;
 		}
@@ -3106,10 +3087,8 @@ static ssize_t enable_store(struct device *pdev, struct device_attribute *attr,
 		msleep(150);
 #endif /* CONFIG_USB_ANDROID_SH_CUST */
 	} else if (__ratelimit(&rl)) {
-#ifdef CONFIG_USB_DEBUG_SH_LOG
 		pr_err("android_usb: already %s\n",
 				dev->enabled ? "enabled" : "disabled");
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 	}
 
 	mutex_unlock(&dev->mutex);

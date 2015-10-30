@@ -1133,10 +1133,8 @@ static int hub_configure(struct usb_hub *hub,
 	}
 
 	hdev->maxchild = hub->descriptor->bNbrPorts;
-#ifdef CONFIG_USB_DEBUG_SH_LOG
 	dev_info (hub_dev, "%d port%s detected\n", hdev->maxchild,
 		(hdev->maxchild == 1) ? "" : "s");
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 
 	hdev->children = kzalloc(hdev->maxchild *
 				sizeof(struct usb_device *), GFP_KERNEL);
@@ -1450,10 +1448,8 @@ descriptor_error:
 	if (!usb_endpoint_is_int_in(endpoint))
 		goto descriptor_error;
 
-#ifdef CONFIG_USB_DEBUG_SH_LOG
 	/* We found a hub */
 	dev_info (&intf->dev, "USB hub found\n");
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 
 	hub = kzalloc(sizeof(*hub), GFP_KERNEL);
 	if (!hub) {
@@ -1767,10 +1763,8 @@ void usb_disconnect(struct usb_device **pdev)
 	 * this quiesces everything except pending urbs.
 	 */
 	usb_set_device_state(udev, USB_STATE_NOTATTACHED);
-#ifdef CONFIG_USB_DEBUG_SH_LOG
 	dev_info(&udev->dev, "USB disconnect, device number %d\n",
 			udev->devnum);
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 
 #ifdef CONFIG_USB_OTG
 	if (udev->bus->hnp_support && udev->portnum == udev->bus->otg_port) {
@@ -1820,21 +1814,18 @@ void usb_disconnect(struct usb_device **pdev)
 }
 
 #ifdef CONFIG_USB_ANNOUNCE_NEW_DEVICES
-#ifdef CONFIG_USB_DEBUG_SH_LOG
 static void show_string(struct usb_device *udev, char *id, char *string)
 {
 	if (!string)
 		return;
 	dev_printk(KERN_INFO, &udev->dev, "%s: %s\n", id, string);
 }
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 
 static void announce_device(struct usb_device *udev)
 {
 	dev_info(&udev->dev, "New USB device found, idVendor=%04x, idProduct=%04x\n",
 		le16_to_cpu(udev->descriptor.idVendor),
 		le16_to_cpu(udev->descriptor.idProduct));
-#ifdef CONFIG_USB_DEBUG_SH_LOG
 	dev_info(&udev->dev,
 		"New USB device strings: Mfr=%d, Product=%d, SerialNumber=%d\n",
 		udev->descriptor.iManufacturer,
@@ -1843,7 +1834,6 @@ static void announce_device(struct usb_device *udev)
 	show_string(udev, "Product", udev->product);
 	show_string(udev, "Manufacturer", udev->manufacturer);
 	show_string(udev, "SerialNumber", udev->serial);
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 }
 #else
 static inline void announce_device(struct usb_device *udev) { }
@@ -3183,13 +3173,12 @@ hub_port_init (struct usb_hub *hub, struct usb_device *udev, int port1,
 		speed = "variable speed Wireless";
 	else
 		speed = usb_speed_string(udev->speed);
-#ifdef CONFIG_USB_DEBUG_SH_LOG
+
 	if (udev->speed != USB_SPEED_SUPER)
 		dev_info(&udev->dev,
 				"%s %s USB device number %d using %s\n",
 				(udev->config) ? "reset" : "new", speed,
 				devnum, udev->bus->controller->driver->name);
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 
 	/* Set up TT records, if needed  */
 	if (hdev->tt) {

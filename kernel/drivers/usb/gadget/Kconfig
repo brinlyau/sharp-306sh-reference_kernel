@@ -546,22 +546,6 @@ config USB_DUMMY_HCD
 
 endmenu
 
-# Selected by UDC drivers that support high-speed operation.
-config USB_GADGET_DUALSPEED
-	bool
-
-# Selected by UDC drivers that support super-speed opperation
-config USB_GADGET_SUPERSPEED
-	bool "Operate as superspeed"
-	depends on USB_GADGET
-	depends on USB_GADGET_DUALSPEED
-	default n
-	help
-	 When a superspeed peripheral controller is selected
-	 (for example DesignWare USB3.0 controller), use this flag to
-	 indicate if the device should operate in superspeed(=y)
-	 or not.
-
 #
 # USB Gadget Drivers
 #

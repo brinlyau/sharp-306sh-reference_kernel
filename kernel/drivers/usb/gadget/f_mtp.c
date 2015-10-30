@@ -1131,10 +1131,7 @@ out:
 
 static int mtp_open(struct inode *ip, struct file *fp)
 {
-#ifdef CONFIG_USB_DEBUG_SH_LOG
 	printk(KERN_INFO "mtp_open\n");
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
-
 	if (mtp_lock(&_mtp_dev->open_excl))
 		return -EBUSY;
 
@@ -1148,9 +1145,7 @@ static int mtp_open(struct inode *ip, struct file *fp)
 
 static int mtp_release(struct inode *ip, struct file *fp)
 {
-#ifdef CONFIG_USB_DEBUG_SH_LOG
 	printk(KERN_INFO "mtp_release\n");
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 
 	mtp_unlock(&_mtp_dev->open_excl);
 	return 0;
@@ -1417,9 +1412,7 @@ static int mtp_bind_config(struct usb_configuration *c, bool ptp_config)
 	struct mtp_dev *dev = _mtp_dev;
 	int ret = 0;
 
-#ifdef CONFIG_USB_DEBUG_SH_LOG
 	printk(KERN_INFO "mtp_bind_config\n");
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 
 	/* allocate a string ID for our interface */
 #ifndef CONFIG_USB_ANDROID_SH_CUST

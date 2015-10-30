@@ -606,9 +606,7 @@ static int msm_otg_phy_reset(struct msm_otg *motg)
 	val = readl(USB_PORTSC) & ~PORTSC_PTS_MASK;
 	writel(val | PORTSC_PTS_ULPI, USB_PORTSC);
 
-#ifdef CONFIG_USB_DEBUG_SH_LOG
 	dev_info(motg->phy.dev, "phy_reset: success\n");
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 	return 0;
 }
 
@@ -2863,9 +2861,6 @@ static void msm_otg_change_cable_notify(void)
 	cable_type = get_cable_type();
 	if (sh_cable_type != cable_type) {
 		kobject_uevent_env(&dev->phy.dev->kobj,KOBJ_CHANGE, uevent_envp);
-#ifdef CONFIG_USB_DEBUG_SH_LOG
-		pr_info("%s: sent uevent %s type %d->%d\n", __func__, uevent_envp[0], sh_cable_type, cable_type);
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 	}
 	sh_cable_type = cable_type;
 }
@@ -3698,11 +3693,6 @@ static void msm_sh_wait_work(struct work_struct *w)
 {
 	struct msm_otg *motg = the_msm_otg;
 	struct usb_otg *otg = motg->phy.otg;
-
-#ifdef CONFIG_USB_DEBUG_SH_LOG
-	dev_info(otg->phy->dev, "sh_wait_work state=%d inputs=%d chg_state=%d chg_type=%d sh_wait=%d \n"
-	,(int)otg->phy->state ,(int)motg->inputs , (int)motg->chg_state , (int)motg->chg_type, (int)sh_disconnect_wait_flg);
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 
 	if(sh_disconnect_wait_flg == 0){
 		sh_disconnect_wait_flg = 1;
@@ -5330,9 +5320,7 @@ static int __init msm_otg_probe(struct platform_device *pdev)
 		ret = -ENOMEM;
 		goto disable_sleep_clk;
 	}
-#ifdef CONFIG_USB_DEBUG_SH_LOG
 	dev_info(&pdev->dev, "OTG regs = %p\n", motg->regs);
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 
 	motg->irq = platform_get_irq(pdev, 0);
 	if (!motg->irq) {

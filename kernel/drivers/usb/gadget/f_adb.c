@@ -683,9 +683,7 @@ static int adb_bind_config(struct usb_configuration *c)
 {
 	struct adb_dev *dev = _adb_dev;
 
-#ifdef CONFIG_USB_DEBUG_SH_LOG
 	pr_debug("adb_bind_config\n");
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 
 #ifdef CONFIG_USB_ANDROID_SH_CUST
 	/* maybe allocate device-global string ID */

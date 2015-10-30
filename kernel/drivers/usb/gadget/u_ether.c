@@ -1,5 +1,4 @@
-/* drivers/usb/gadget/u_ether.c
- *
+/*
  * u_ether.c -- Ethernet-over-USB link layer utilities for Gadget stack
  *
  * Copyright (C) 2003-2005,2008 David Brownell
@@ -1077,10 +1076,8 @@ int gether_setup_name(struct usb_gadget *g, u8 ethaddr[ETH_ALEN],
 		dev_dbg(&g->dev, "register_netdev failed, %d\n", status);
 		free_netdev(net);
 	} else {
-#ifdef CONFIG_USB_DEBUG_SH_LOG
 		INFO(dev, "MAC %pM\n", net->dev_addr);
 		INFO(dev, "HOST MAC %pM\n", dev->host_mac);
-#endif /* CONFIG_USB_DEBUG_SH_LOG */
 
 		the_dev = dev;
 	}
