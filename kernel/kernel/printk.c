@@ -1383,12 +1383,8 @@ again:
 	 * flush, no worries.
 	 */
 	raw_spin_lock(&logbuf_lock);
-#ifdef CONFIG_SH_PRINTK_MOD
-	retry = con_start != log_end;
-#else
 	if (con_start != log_end)
 		retry = 1;
-#endif
 	raw_spin_unlock_irqrestore(&logbuf_lock, flags);
 
 	if (retry && console_trylock())

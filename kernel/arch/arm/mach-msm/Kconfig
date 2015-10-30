@@ -3087,12 +3087,6 @@ config SH_SHUTDOWN_FAILSAFE
        help
         for shutdown fail safe
 
-config SH_PRINTK_MOD
-       bool "SHARP CONSOLE_UNLOCK MODIFY"
-       default y
-       help
-        mod console_unlock in printk.c
-
 config SHWDTIME_CUST
        bool "SHARP WATCHDOG CUSTOMIZE"
        default y
