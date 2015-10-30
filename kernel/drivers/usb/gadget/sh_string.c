@@ -28,10 +28,6 @@ static char obex_iInterface[USB_I_INT_STRING_DESC_LEN];
 static char msc_iInterface[USB_I_INT_STRING_DESC_LEN];
 #endif /* CONFIG_USB_ANDROID_SH_UMS */
 
-#ifdef CONFIG_USB_ANDROID_MASS_STORAGE_CD
-static char cd_iInterface[USB_I_INT_STRING_DESC_LEN];
-#endif /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
-
 #define DESCRIPTOR_STRING_ATTR(field, buffer, len)			\
 static ssize_t								\
 field ## _show(struct device *dev, struct device_attribute *attr,	\
@@ -67,10 +63,6 @@ DESCRIPTOR_STRING_ATTR(obex_iInterface, obex_iInterface, USB_I_INT_STRING_DESC_L
 #ifdef CONFIG_USB_ANDROID_SH_UMS
 DESCRIPTOR_STRING_ATTR(msc_iInterface, msc_iInterface, USB_I_INT_STRING_DESC_LEN)
 #endif /* CONFIG_USB_ANDROID_SH_UMS */
-
-#ifdef CONFIG_USB_ANDROID_MASS_STORAGE_CD
-DESCRIPTOR_STRING_ATTR(cd_iInterface, cd_iInterface, USB_I_INT_STRING_DESC_LEN)
-#endif /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 
 /* Module */
 MODULE_AUTHOR("SHARP CORPORATION");

@@ -2186,12 +2186,6 @@ static int mass_storage_function_init(struct android_usb_function *f,
 
 	config->fsg.nluns = 1;
 	name[0] = "lun";
-#ifdef CONFIG_USB_ANDROID_MASS_STORAGE_CD
-	config->fsg.luns[0].cdrom = 1;
-	config->fsg.luns[0].ro = 1;
-	config->fsg.release = 0x0100;
-	config->fsg.can_stall = 1;
-#else /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 	if (dev->pdata && dev->pdata->cdrom) {
 		config->fsg.luns[config->fsg.nluns].cdrom = 1;
 		config->fsg.luns[config->fsg.nluns].ro = 1;
@@ -2206,7 +2200,6 @@ static int mass_storage_function_init(struct android_usb_function *f,
 		name[config->fsg.nluns] = "lun1";
 		config->fsg.nluns++;
 	}
-#endif /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 
 	config->fsg.luns[0].removable = 1;
 
@@ -2262,22 +2255,10 @@ static ssize_t mass_storage_inquiry_store(struct device *dev,
 {
 	struct android_usb_function *f = dev_get_drvdata(dev);
 	struct mass_storage_function_config *config = f->config;
-
-#ifdef CONFIG_USB_ANDROID_MASS_STORAGE_CD
-	char *line_feed;
-#endif /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 	if (size >= sizeof(config->common->inquiry_string))
 		return -EINVAL;
-
-#ifdef CONFIG_USB_ANDROID_MASS_STORAGE_CD
-	strncpy(config->common->inquiry_string, buf, USB_INQUIRY_STRING_LEN);
-	config->common->inquiry_string[USB_INQUIRY_STRING_LEN-1] = 0x00;
-	line_feed = strstr(config->common->inquiry_string, "\n");
-	if(line_feed) *line_feed = 0x00;
-#else /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 	if (sscanf(buf, "%28s", config->common->inquiry_string) != 1)
 		return -EINVAL;
-#endif /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 	return size;
 }
 
@@ -2287,19 +2268,11 @@ static DEVICE_ATTR(inquiry_string, S_IRUGO | S_IWUSR,
 
 static struct device_attribute *mass_storage_function_attributes[] = {
 	&dev_attr_inquiry_string,
-#ifdef CONFIG_USB_ANDROID_MASS_STORAGE_CD
-	/* define the device attributes in sh_string.c */
-	&dev_attr_cd_iInterface,
-#endif /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 	NULL
 };
 
 static struct android_usb_function mass_storage_function = {
-#ifdef CONFIG_USB_ANDROID_MASS_STORAGE_CD
-	.name		= "mass_storage_cd",
-#else /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 	.name		= "mass_storage",
-#endif /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 	.init		= mass_storage_function_init,
 	.cleanup	= mass_storage_function_cleanup,
 	.bind_config	= mass_storage_function_bind_config,

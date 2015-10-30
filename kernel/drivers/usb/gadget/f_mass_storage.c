@@ -1,11 +1,9 @@
-/* drivers/usb/gadget/f_mass_storage.c
- *
+/*
  * f_mass_storage.c -- Mass Storage USB Composite Function
  *
  * Copyright (C) 2003-2008 Alan Stern
  * Copyright (C) 2009 Samsung Electronics
  *                    Author: Michal Nazarewicz <mina86@mina86.com>
- * Copyright (C) 2013 SHARP CORPORATION
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -304,9 +302,7 @@
 #define FSG_DRIVER_DESC		"Mass Storage Function"
 #define FSG_DRIVER_VERSION	"2009/09/11"
 
-#ifndef CONFIG_USB_ANDROID_MASS_STORAGE_CD
 static const char fsg_string_interface[] = "Mass Storage";
-#endif /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 
 #define FSG_NO_DEVICE_STRINGS    1
 #define FSG_NO_OTG               1
@@ -319,10 +315,6 @@ static int write_error_after_csw_sent;
 static int csw_hack_sent;
 #endif
 /*-------------------------------------------------------------------------*/
-
-#ifdef CONFIG_USB_ANDROID_MASS_STORAGE_CD
-#define USB_INQUIRY_STRING_LEN		(8 + 16 + 4 + 1)
-#endif /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 
 struct fsg_dev;
 struct fsg_common;
@@ -635,12 +627,8 @@ static int fsg_setup(struct usb_function *f,
 		if (ctrl->bRequestType !=
 		    (USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE))
 			break;
-#ifdef CONFIG_USB_ANDROID_MASS_STORAGE_CD
-		if (w_value != 0)
-#else /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 		if (w_index != fsg->interface_number || w_value != 0 ||
 				w_length != 0)
-#endif /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 			return -EDOM;
 
 		/*
@@ -658,12 +646,8 @@ static int fsg_setup(struct usb_function *f,
 		if (ctrl->bRequestType !=
 		    (USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE))
 			break;
-#ifdef CONFIG_USB_ANDROID_MASS_STORAGE_CD
-		if (w_value != 0)
-#else /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 		if (w_index != fsg->interface_number || w_value != 0 ||
 				w_length != 1)
-#endif /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 			return -EDOM;
 		VDBG(fsg, "get max LUN\n");
 		*(u8 *)req->buf = fsg->common->nluns - 1;
@@ -2550,12 +2534,6 @@ static int fsg_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
 	struct fsg_common *common = fsg->common;
 	int rc;
 
-#ifdef CONFIG_USB_ANDROID_MASS_STORAGE_CD
-	/* ALT CONFIG is canceled in the case shown below. */
-	if( fsg->bulk_in_enabled && fsg->bulk_out_enabled )
-		return 0;
-#endif /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
-
 	/* Enable the endpoints */
 	rc = config_ep_by_speed(common->gadget, &(fsg->function), fsg->bulk_in);
 	if (rc)
@@ -3274,11 +3252,7 @@ static int fsg_bind_config(struct usb_composite_dev *cdev,
 	if (unlikely(!fsg))
 		return -ENOMEM;
 
-#ifdef CONFIG_USB_ANDROID_MASS_STORAGE_CD
-	fsg->function.name        = "mass_storage_cd";
-#else /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 	fsg->function.name        = FSG_DRIVER_DESC;
-#endif /* CONFIG_USB_ANDROID_MASS_STORAGE_CD */
 	fsg->function.strings     = fsg_strings_array;
 	fsg->function.bind        = fsg_bind;
 	fsg->function.unbind      = fsg_unbind;
