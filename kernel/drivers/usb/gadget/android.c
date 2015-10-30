@@ -1584,25 +1584,6 @@ static struct android_usb_function mdlm_function = {
 	.attributes	= sh_serial_mdlm_function_attributes,
 };
 
-#ifdef CONFIG_USB_ANDROID_SH_DTFER
-static int mdlm_notify_uevent(void)
-{
-	int ret;
-	char **uevent_envp = NULL;
-	char *uevent_envp_open[]={"DTFER_STATE=dtfer_open", NULL};
-	char *uevent_envp_close[]={"DTFER_STATE=dtfer_close", NULL};
-
-	if (dtfer_sts.open_sts)
-		uevent_envp = uevent_envp_open;
-	else
-		uevent_envp = uevent_envp_close;
-
-	ret = kobject_uevent_env(&mdlm_function.dev->kobj, KOBJ_CHANGE, uevent_envp);
-	pr_debug("%s: sent uevent %s ret = %d\n", __func__, uevent_envp[0], ret);
-	return ret;
-}
-#endif /* CONFIG_USB_ANDROID_SH_DTFER */
-
 #else /* CONFIG_USB_ANDROID_SH_SERIALS */
 /* SERIAL */
 static char serial_transports[32];	/*enabled FSERIAL ports - "tty[,sdio]"*/

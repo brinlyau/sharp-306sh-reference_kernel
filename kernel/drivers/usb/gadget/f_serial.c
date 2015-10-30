@@ -95,19 +95,6 @@ static inline struct f_gser *port_to_gser(struct gserial *p)
 #define GS_LOG2_NOTIFY_INTERVAL		5	/* 1 << 5 == 32 msec */
 #define GS_NOTIFY_MAXPACKET		10	/* notification + 2 bytes */
 #endif
-
-#ifdef CONFIG_USB_ANDROID_SH_DTFER
-struct dtfer_open_port_sts {
-	struct work_struct	work;
-	int			open_sts;
-	int			init;
-};
-
-static struct dtfer_open_port_sts dtfer_sts;
-
-static int mdlm_notify_uevent(void);
-#endif /* CONFIG_USB_ANDROID_SH_DTFER */
-
 /*-------------------------------------------------------------------------*/
 
 /* interface descriptor: */
@@ -595,10 +582,6 @@ static int gser_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
 	}
 
 	gport_connect(gser);
-#ifdef CONFIG_USB_ANDROID_SH_DTFER
-	dtfer_sts.open_sts = 1;
-	schedule_work(&dtfer_sts.work);
-#endif /* CONFIG_USB_ANDROID_SH_DTFER */
 
 	gser->online = 1;
 	return rc;
@@ -619,14 +602,6 @@ static void gser_disable(struct usb_function *f)
 	gser->notify->driver_data = NULL;
 #endif
 	gser->online = 0;
-
-#ifdef CONFIG_USB_ANDROID_SH_DTFER
-	if (dtfer_sts.open_sts) {
-		dtfer_sts.open_sts = 0;
-		schedule_work(&dtfer_sts.work);
-	}
-#endif /* CONFIG_USB_ANDROID_SH_DTFER */
-
 }
 #ifdef CONFIG_MODEM_SUPPORT
 static int gser_notify(struct f_gser *gser, u8 type, u16 value,
@@ -937,19 +912,6 @@ gser_unbind(struct usb_configuration *c, struct usb_function *f)
 	kfree(func_to_gser(f));
 }
 
-
-#ifdef CONFIG_USB_ANDROID_SH_DTFER
-	dtfer_sts.open_sts = 1;
-	schedule_work(&dtfer_sts.work);
-#endif /* CONFIG_USB_ANDROID_SH_DTFER */
-
-#ifdef CONFIG_USB_ANDROID_SH_DTFER
-static void dtfer_setinterface_work(struct work_struct *w)
-{
-	mdlm_notify_uevent();
-}
-#endif /* CONFIG_USB_ANDROID_SH_DTFER */
-
 /**
  * gser_bind_config - add a generic serial function to a configuration
  * @c: the configuration to support the serial instance
@@ -1014,13 +976,6 @@ int gser_bind_config(struct usb_configuration *c, u8 port_num)
 	gser->port.disconnect = gser_disconnect;
 	gser->port.send_break = gser_send_break;
 #endif
-
-#ifdef CONFIG_USB_ANDROID_SH_DTFER
-	if (!dtfer_sts.init) {
-		INIT_WORK(&dtfer_sts.work, dtfer_setinterface_work);
-		dtfer_sts.init = 1;
-	}
-#endif /* CONFIG_USB_ANDROID_SH_DTFER */
 
 	status = usb_add_function(c, &gser->port.func);
 	if (status)

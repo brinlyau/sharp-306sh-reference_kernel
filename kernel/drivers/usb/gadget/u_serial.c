@@ -157,9 +157,6 @@ static struct workqueue_struct *gserial_wq;
 	({ if (0) pr_debug(fmt, ##arg); })
 #endif
 
-#ifdef CONFIG_USB_ANDROID_SH_DTFER
-#define D_SH_DTFER_PORT_NUM     (1)
-#endif /* CONFIG_USB_ANDROID_SH_DTFER */
 /*-------------------------------------------------------------------------*/
 
 /* Circular Buffer */
@@ -807,11 +804,7 @@ static int gs_open(struct tty_struct *tty, struct file *file)
 				status = 0;
 #endif /* CONFIG_USB_ANDROID_SH_CUST */
 				port->open_count++;
-#ifdef CONFIG_USB_ANDROID_SH_DTFER
-				if(port_num == D_SH_DTFER_PORT_NUM){
-					status = 0;
-				}
-#endif /* CONFIG_USB_ANDROID_SH_DTFER */
+
 			/* currently opening/closing? wait ... */
 			} else if (port->openclose) {
 				status = -EBUSY;

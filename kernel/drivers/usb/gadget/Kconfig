@@ -881,13 +881,6 @@ config USB_ANDROID_SH_CUST
         help
          Add sharp's customize for "Android Gadget".
 
-config USB_ANDROID_SH_DTFER
-	boolean "Android Gadget Data Transfer functions for Sharp Devices"
-	depends on USB_ANDROID_SH_SERIALS
-	default n
-	help
-	  Provides Data Transfer function for android gadget driver for sharp devices.
-
 config USB_ANDROID_SH_UMS
 	boolean "Android gadget mass storage function(userspace) for sharp devices"
 	depends on USB_ANDROID_SH_CUST
