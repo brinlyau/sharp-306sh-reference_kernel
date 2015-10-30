@@ -1145,12 +1145,6 @@ config MACH_ZEPPELI
 	help
 	  Support for Sharp ZEPPELI.
 
-config MACH_PA25
-	depends on ARCH_MSM8226
-	bool "SHARP PA25"
-	help
-	  Support for Sharp sg305sh.
-
 config MACH_PB25
 	depends on ARCH_MSM8226
 	bool "SHARP PB25"
