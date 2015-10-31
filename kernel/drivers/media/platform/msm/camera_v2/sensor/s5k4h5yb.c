@@ -59,12 +59,6 @@ static struct msm_sensor_power_setting s5k4h5yb_power_setting[] = {
 		.config_val = 0,
 		.delay = 0,
 	},
-//	{
-//		.seq_type = SENSOR_VREG,
-//		.seq_val = CAM_VIO,
-//		.config_val = 0,
-//		.delay = 0,
-//	},
 	{
 		.seq_type = SENSOR_VREG,
 		.seq_val = CAM_VAF,
@@ -92,16 +86,9 @@ static struct msm_sensor_power_setting s5k4h5yb_power_setting[] = {
 	{
 		.seq_type = SENSOR_CLK,
 		.seq_val = SENSOR_CAM_MCLK,
-//		.config_val = 16000000,
 		.config_val = 17142857,
 		.delay = 3,
 	},
-//	{
-//		.seq_type = SENSOR_GPIO,
-//		.seq_val = SENSOR_GPIO_STANDBY,
-//		.config_val = GPIO_OUT_HIGH,
-//		.delay = 3,
-//	},
 	{
 		.seq_type = SENSOR_I2C_MUX,
 		.seq_val = 0,
@@ -123,12 +110,6 @@ static struct msm_sensor_power_setting s5k4h5yb_power_setting_dum[] = {
 		.config_val = 0,
 		.delay = 0,
 	},
-//	{
-//		.seq_type = SENSOR_VREG,
-//		.seq_val = CAM_VIO,
-//		.config_val = 0,
-//		.delay = 0,
-//	},
 	{
 		.seq_type = SENSOR_VREG,
 		.seq_val = CAM_VAF,
@@ -156,7 +137,6 @@ static struct msm_sensor_power_setting s5k4h5yb_power_setting_dum[] = {
 	{
 		.seq_type = SENSOR_CLK,
 		.seq_val = SENSOR_CAM_MCLK,
-//		.config_val = 16000000,
 		.config_val = 17142857,
 		.delay = 0,
 	},
@@ -195,15 +175,15 @@ int32_t s5k4h5yb_i2c_read(struct msm_sensor_ctrl_t *s_ctrl,
 	struct sensorb_cfg_data *cdata = (struct sensorb_cfg_data *)argp;
 	long rc = 0;
 	void *data;
-	
+
 	CDBG("%s start\n", __func__);
-	
+
 	data = kmalloc(cdata->cfg.i2c_info.length, GFP_KERNEL);
 	if(data == NULL){
 		pr_err("%s kmalloc failed\n", __func__);
 		return -EFAULT;
 	}
-	
+
 	CDBG("%s i2c_info.addr = 0x%0x\n", __func__, cdata->cfg.i2c_info.addr);
 	CDBG("%s i2c_info.length = 0x%0x\n", __func__, cdata->cfg.i2c_info.length);
 	rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_read_seq(s_ctrl->sensor_i2c_client, cdata->cfg.i2c_info.addr, data, cdata->cfg.i2c_info.length);
@@ -212,7 +192,7 @@ int32_t s5k4h5yb_i2c_read(struct msm_sensor_ctrl_t *s_ctrl,
 		kfree(data);
 		return -EFAULT;
 	}
-	
+
 	if (copy_to_user((void *)cdata->cfg.i2c_info.data,
 		data,
 		cdata->cfg.i2c_info.length)){
@@ -221,7 +201,7 @@ int32_t s5k4h5yb_i2c_read(struct msm_sensor_ctrl_t *s_ctrl,
 		return -EFAULT;
 	}
 	kfree(data);
-	
+
 	return rc;
 }
 
@@ -268,30 +248,30 @@ int32_t s5k4h5yb_i2c_write(struct msm_sensor_ctrl_t *s_ctrl,
 		kfree(reg_sec_setting);
 		return -EFAULT;
 	}
-	
+
 	if(conf_array.data_type == MSM_CAMERA_I2C_BYTE_DATA){
-	
+
 		pos_reg_setting = reg_setting;
 		pos_reg_sec_setting = reg_sec_setting;
-		
+
 		array_size = 1;
 		conf_sec_array.addr_type = conf_array.addr_type;
 		conf_sec_array.delay = conf_array.delay;
 		conf_sec_array.reg_setting = reg_sec_setting;
-		
+
 		pos_reg_sec_setting->reg_addr = pos_reg_setting->reg_addr;
 		pos_reg_sec_setting->reg_data[0] = pos_reg_setting->reg_data;
 		cur_size = 1;
 		pos_reg_setting++;
-		
+
 		for (i = 1; i < conf_array.size; i++) {
 			if(pos_reg_setting->reg_addr == (pos_reg_sec_setting->reg_addr + cur_size)){
 				if(cur_size >= 7){
 					pos_reg_sec_setting->reg_data_size = cur_size;
-					
+
 					pos_reg_sec_setting++;
 					array_size++;
-					
+
 					cur_size = 0;
 					pos_reg_sec_setting->reg_addr = pos_reg_setting->reg_addr;
 				}
@@ -299,10 +279,10 @@ int32_t s5k4h5yb_i2c_write(struct msm_sensor_ctrl_t *s_ctrl,
 				cur_size++;
 			} else {
 				pos_reg_sec_setting->reg_data_size = cur_size;
-				
+
 				pos_reg_sec_setting++;
 				array_size++;
-				
+
 				pos_reg_sec_setting->reg_addr = pos_reg_setting->reg_addr;
 				pos_reg_sec_setting->reg_data[0] = pos_reg_setting->reg_data;
 				cur_size = 1;
@@ -317,25 +297,25 @@ int32_t s5k4h5yb_i2c_write(struct msm_sensor_ctrl_t *s_ctrl,
 		rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->
 			i2c_write_seq_table(s_ctrl->sensor_i2c_client,
 			&conf_sec_array);
-		
+
 		CDBG("%s rc = %d", __func__, (int)rc);
 
 	} else {
 
 		CDBG("%s conf_array.data_type = %d", __func__, conf_array.data_type);
-		
+
 		conf_array.reg_setting = reg_setting;
 		rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_write_table(
 			s_ctrl->sensor_i2c_client, &conf_array);
-			
+
 		CDBG("%s rc = %d", __func__, (int)rc);
 	}
-	
+
 	kfree(reg_setting);
 	kfree(reg_sec_setting);
 
 	CDBG("%s end", __func__);
-	
+
 	return rc;
 }
 
@@ -346,37 +326,37 @@ int32_t s5k4h5yb_smem_read(struct msm_sensor_ctrl_t *s_ctrl,
 	long rc = 0;
 	sharp_smem_common_type *p_sh_smem_common_type = NULL;
 	int32_t camOtpData_size = 0;
-	
+
 	CDBG("%s start\n", __func__);
-	
+
 	CDBG("%s smem_info.addr = 0x%0x\n", __func__, cdata->cfg.smem_info.addr);
 	CDBG("%s smem_info.length = 0x%0x\n", __func__, cdata->cfg.smem_info.length);
-	
+
 	p_sh_smem_common_type = sh_smem_get_common_address();
 	if(p_sh_smem_common_type == NULL){
 		pr_err("%s p_sh_smem_common_type == NULL\n",__func__);
 		return -EFAULT;
 	}
-	
+
 	camOtpData_size = sizeof(p_sh_smem_common_type->sh_camOtpData);
-		
+
 	if((cdata->cfg.smem_info.addr + cdata->cfg.smem_info.length) > camOtpData_size){
 		pr_err("%s length error %d : camOtpData_size = %d\n",__func__, (cdata->cfg.smem_info.addr + cdata->cfg.smem_info.length), camOtpData_size);
 		return -EFAULT;
 	}
-		
+
 	if(s5k4h5yb_diag_data == NULL){
 		pr_err("%s s5k4h5yb_diag_data == NULL\n",__func__);
 		return -EFAULT;
 	}
-	
+
 	if (copy_to_user((void *)cdata->cfg.smem_info.data,
 		&s5k4h5yb_diag_data[cdata->cfg.smem_info.addr],
 		cdata->cfg.smem_info.length)){
 		pr_err("%s copy_to_user error\n",__func__);
 		return -EFAULT;
 	}
-	
+
 	return rc;
 }
 
@@ -387,37 +367,37 @@ int32_t s5k4h5yb_smem_write(struct msm_sensor_ctrl_t *s_ctrl,
 	long rc = 0;
 	sharp_smem_common_type *p_sh_smem_common_type = NULL;
 	int32_t camOtpData_size = 0;
-	
+
 	CDBG("%s start\n", __func__);
-	
+
 	CDBG("%s smem_info.addr = 0x%0x\n", __func__, cdata->cfg.smem_info.addr);
 	CDBG("%s smem_info.length = 0x%0x\n", __func__, cdata->cfg.smem_info.length);
-	
+
 	p_sh_smem_common_type = sh_smem_get_common_address();
 	if(p_sh_smem_common_type == NULL){
 		pr_err("%s p_sh_smem_common_type == NULL\n",__func__);
 		return -EFAULT;
 	}
-	
+
 	camOtpData_size = sizeof(p_sh_smem_common_type->sh_camOtpData);
-		
+
 	if((cdata->cfg.smem_info.addr + cdata->cfg.smem_info.length) > camOtpData_size){
 		pr_err("%s length error %d : camOtpData_size = %d\n",__func__, (cdata->cfg.smem_info.addr + cdata->cfg.smem_info.length), camOtpData_size);
 		return -EFAULT;
 	}
-		
+
 	if(s5k4h5yb_diag_data == NULL){
 		pr_err("%s s5k4h5yb_diag_data == NULL\n",__func__);
 		return -EFAULT;
 	}
-	
+
 	if (copy_from_user(&s5k4h5yb_diag_data[cdata->cfg.smem_info.addr],
 		(void *)cdata->cfg.smem_info.data,
 		cdata->cfg.smem_info.length)){
 		pr_err("%s copy_from_user error\n",__func__);
 		return -EFAULT;
 	}
-	
+
 	return rc;
 }
 
@@ -427,29 +407,29 @@ int32_t s5k4h5yb_otp_read(struct msm_sensor_ctrl_t *s_ctrl,
 {
 	struct sensorb_cfg_data *cdata = (struct sensorb_cfg_data *)argp;
 	long rc = 0;
-	
+
 	CDBG("%s start\n", __func__);
-	
+
 	CDBG("%s otp_info.addr = 0x%0x\n", __func__, cdata->cfg.otp_info.addr);
 	CDBG("%s otp_info.length = 0x%0x\n", __func__, cdata->cfg.otp_info.length);
-	
+
 	if((cdata->cfg.smem_info.addr + cdata->cfg.smem_info.length) > 1024){
 		pr_err("%s length error %d\n",__func__, (cdata->cfg.smem_info.addr + cdata->cfg.smem_info.length));
 		return -EFAULT;
 	}
-		
+
 	if(s5k4h5yb_otp_data == NULL){
 		pr_err("%s s5k4h5yb_otp_data == NULL\n",__func__);
 		return -EFAULT;
 	}
-	
+
 	if (copy_to_user((void *)cdata->cfg.otp_info.data,
 		&s5k4h5yb_otp_data[cdata->cfg.otp_info.addr],
 		cdata->cfg.otp_info.length)){
 		pr_err("%s copy_to_user error\n",__func__);
 		return -EFAULT;
 	}
-	
+
 	return rc;
 }
 
@@ -510,7 +490,7 @@ int32_t s5k4h5yb_sensor_power_up(struct msm_sensor_ctrl_t *s_ctrl)
 	unsigned short hw_rev = SH_REV_ES1;
 
 	CDBG("%s\n", __func__);
-	
+
 	hw_rev = sh_boot_get_hw_revision();
 	if(hw_rev >= SH_REV_PP1) {
 		s5k4h5yb_s_ctrl.power_setting_array.power_setting = s5k4h5yb_power_setting;
@@ -540,7 +520,7 @@ int32_t s5k4h5yb_sensor_power_down(struct msm_sensor_ctrl_t *s_ctrl)
 	unsigned short hw_rev = SH_REV_ES1;
 
 	CDBG("%s\n", __func__);
-	
+
 	hw_rev = sh_boot_get_hw_revision();
 	if(hw_rev >= SH_REV_PP1) {
 		s5k4h5yb_s_ctrl.power_setting_array.power_setting = s5k4h5yb_power_setting;
@@ -619,7 +599,7 @@ static int32_t s5k4h5yb_platform_probe(struct platform_device *pdev)
 	const struct of_device_id *match;
 	match = of_match_device(s5k4h5yb_dt_match, &pdev->dev);
 	rc = msm_sensor_platform_probe(pdev, match->data);
-	
+
 	if(rc < 0){
 		return rc;
 	} else {
@@ -643,11 +623,11 @@ static int32_t s5k4h5yb_platform_probe(struct platform_device *pdev)
 			{ 0x3b0f, 0x01 , 0x00 },
 			{ 0x3b10, 0xfd , 0x00 },
 		};
-		
+
 		conf_array.addr_type = MSM_CAMERA_I2C_WORD_ADDR;
 		conf_array.data_type = MSM_CAMERA_I2C_BYTE_DATA;
 		conf_array.delay = 0;
-		
+
 		for(i=0; i < s_ctrl->power_setting_array.size; i++){
 			if(s_ctrl->power_setting_array.power_setting[i].seq_type == SENSOR_CLK){
 				before_config_val = s_ctrl->power_setting_array.power_setting[i].config_val;
@@ -657,21 +637,21 @@ static int32_t s5k4h5yb_platform_probe(struct platform_device *pdev)
 				break;
 			}
 		}
-		
+
 		rc = s_ctrl->func_tbl->sensor_power_up(s_ctrl);
 		if (rc < 0) {
 			pr_err("%s %s power up failed\n", __func__,s_ctrl->sensordata->sensor_name);
 			return rc;
 		}
-		
+
 		s5k4h5yb_otp_data = kmalloc(1024, GFP_KERNEL);
-	
+
 		if(s5k4h5yb_otp_data != NULL){
 			conf_array.size = ARRAY_SIZE(init_reg_setting);
 			conf_array.reg_setting = init_reg_setting;
 			s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_write_table(
 				s_ctrl->sensor_i2c_client, &conf_array);
-			
+
 			conf_array.size = 1;
 			conf_array.reg_setting = &reg_setting;
 			reg_setting.reg_addr = 0x3a02;
@@ -679,13 +659,13 @@ static int32_t s5k4h5yb_platform_probe(struct platform_device *pdev)
 			reg_setting.delay = 0x00;
 			s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_write_table(
 				s_ctrl->sensor_i2c_client, &conf_array);
-			
+
 			reg_setting.reg_addr = 0x3a00;
 			reg_setting.reg_data = 0x01;
 			reg_setting.delay = 0x00;
 			s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_write_table(
 				s_ctrl->sensor_i2c_client, &conf_array);
-			
+
 			for(i = 0; i < 16; i++){
 				if(i != 0){
 					reg_setting.reg_addr = 0x3a02;
@@ -694,12 +674,12 @@ static int32_t s5k4h5yb_platform_probe(struct platform_device *pdev)
 					s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_write_table(
 						s_ctrl->sensor_i2c_client, &conf_array);
 				}
-				
+
 				usleep_range(350,1350);
-				
+
 				s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_read_seq(s_ctrl->sensor_i2c_client, 0x3a04, &s5k4h5yb_otp_data[i * 64], 64);
-				
-				
+
+
 			}
 			reg_setting.reg_addr = 0x3a00;
 			reg_setting.reg_data = 0x00;
@@ -707,9 +687,9 @@ static int32_t s5k4h5yb_platform_probe(struct platform_device *pdev)
 			s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_write_table(
 				s_ctrl->sensor_i2c_client, &conf_array);
 		}
-		
+
 		s_ctrl->func_tbl->sensor_power_down(s_ctrl);
-		
+
 		for(i=0; i < s_ctrl->power_setting_array.size; i++){
 			if(s_ctrl->power_setting_array.power_setting[i].seq_type == SENSOR_CLK){
 				s_ctrl->power_setting_array.power_setting[i].config_val = before_config_val;
@@ -717,7 +697,7 @@ static int32_t s5k4h5yb_platform_probe(struct platform_device *pdev)
 				break;
 			}
 		}
-		
+
 		CDBG("%s s5k4h5yb_otp_data\n", __func__);
 		for(i=0;i < 127;i++){
 			CDBG("%s %02x %02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,", __func__, i
@@ -730,7 +710,7 @@ static int32_t s5k4h5yb_platform_probe(struct platform_device *pdev)
 					, *(s5k4h5yb_otp_data + i*8 + 6)
 					, *(s5k4h5yb_otp_data + i*8 + 7));
 		}
-		
+
 	}
 	return rc;
 }
@@ -740,24 +720,24 @@ static int __init s5k4h5yb_init_module(void)
 	int32_t rc = 0;
 	sharp_smem_common_type *p_sh_smem_common_type = NULL;
 	int32_t camOtpData_size = 0;
-	
+
 	pr_info("%s:%d\n", __func__, __LINE__);
-	
+
 	p_sh_smem_common_type = sh_smem_get_common_address();
 	if(p_sh_smem_common_type != NULL){
 		camOtpData_size = sizeof(p_sh_smem_common_type->sh_camOtpData);
-	
+
 		CDBG("%s camOtpData_size = %d\n", __func__, camOtpData_size);
-	
+
 		s5k4h5yb_diag_data = kmalloc(camOtpData_size, GFP_KERNEL);
-	
+
 		if(s5k4h5yb_diag_data != NULL){
 			memcpy(s5k4h5yb_diag_data, &p_sh_smem_common_type->sh_camOtpData[0], camOtpData_size);
 		}
 	}
 
 	perf_lock_init(&s5k4h5yb_perf_lock, PERF_LOCK_787200KHz, "camera_s5k4h5yb");
-	
+
 	rc = platform_driver_probe(&s5k4h5yb_platform_driver,
 		s5k4h5yb_platform_probe);
 	if (!rc)

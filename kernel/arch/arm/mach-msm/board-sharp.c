@@ -80,8 +80,6 @@ static struct msm_serial_hslite_platform_data blsp1_uart1_data = {
 	.config_gpio = 1,
 	.uart_tx_gpio = 0,
 	.uart_rx_gpio = 1,
-//	.uart_cts_gpio,
-//	.uart_rfr_gpio,
 	.use_pm = 1,
 #if defined(CONFIG_SERIAL_MSM_HSL_CONSOLE)
 	.line = 0,

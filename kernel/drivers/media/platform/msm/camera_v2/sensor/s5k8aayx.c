@@ -17,7 +17,7 @@
 #include <mach/msm_iomap.h>
 #include <mach/perflock.h>
 #include "sharp/sh_boot_manager.h"
-#include "linux/vmalloc.h" 
+#include "linux/vmalloc.h"
 
 #define S5K8AAYX_SENSOR_NAME "s5k8aayx"
 DEFINE_MSM_MUTEX(s5k8aayx_mut);
@@ -110,12 +110,6 @@ static struct msm_sensor_power_setting s5k8aayx_power_setting_dum[] = {
 		.config_val = 0,
 		.delay = 1,
 	},
-//	{
-//		.seq_type = SENSOR_VREG,
-//		.seq_val = CAM_VIO,
-//		.config_val = 0,
-//		.delay = 1,
-//	},
 	{
 		.seq_type = SENSOR_GPIO,
 		.seq_val = SENSOR_GPIO_RESET,
@@ -153,11 +147,6 @@ static struct msm_sensor_power_setting s5k8aayx_power_setting_dum[] = {
 		.delay = 0,
 	},
 };
-
-//static struct msm_cam_clk_info s5k8aayx_clk_info[] = {
-//	[SENSOR_CAM_MCLK] = {"cam_src_clk", 17000000},
-//	[SENSOR_CAM_CLK] = {"cam_clk", 0},
-//};
 
 static struct msm_camera_i2c_reg_conf init_reg_array[] = {
 //==================================================================================
@@ -2667,7 +2656,7 @@ static struct msm_camera_i2c_reg_conf init_reg_array[] = {
 static struct msm_camera_i2c_reg_conf res0_reg_array[] = {
 	{0x0028, 0x7000},
 	{0x002A, 0x01CA},
-	{0x0F12, 0x0000},	//REG_0TC_PCFG_Cfg_Input_Sizes_usWidth 
+	{0x0F12, 0x0000},	//REG_0TC_PCFG_Cfg_Input_Sizes_usWidth
 	{0x0F12, 0x0000},	//REG_0TC_PCFG_Cfg_Input_Sizes_usHeight
 	{0x0F12, 0x0000},	//REG_0TC_PCFG_Cfg_Input_Ofs_usWidth
 	{0x0F12, 0x0000},	//REG_0TC_PCFG_Cfg_Input_Ofs_usHeight
@@ -2692,7 +2681,7 @@ static struct msm_camera_i2c_reg_conf res0_reg_array[] = {
 	{0x002A, 0x01A6},
 	{0x0F12, 0x0001},	//REG_TC_GP_NewConfigSync
 	{0x002A, 0x01AA},
-	{0x0F12, 0x0001},	//REG_TC_GP_PrevConfigChanged 
+	{0x0F12, 0x0001},	//REG_TC_GP_PrevConfigChanged
 	{0x002A, 0x019E},
 	{0x0F12, 0x0001},	//REG_TC_GP_EnablePreview
 	{0x002A, 0x01A0},
@@ -2930,23 +2919,23 @@ int32_t s5k8aayx_sensor_i2c_probe(struct i2c_client *client,
 	int rc = 0;
 	struct msm_sensor_ctrl_t *s_ctrl;
 	CDBG("%s", __func__);
-	
+
 	rc = msm_sensor_i2c_probe(client, id,&s5k8aayx_s_ctrl);
 	if (rc < 0) {
 		CDBG("%s msm_sensor_i2c_probe failed\n", __func__);
 		return rc;
 	}
-	
+
 	s_ctrl = (struct msm_sensor_ctrl_t *)(id->driver_data);
 	if (!s_ctrl) {
 		pr_err("%s:%d sensor ctrl structure NULL\n", __func__,
 			__LINE__);
 		return -EINVAL;
 	}
-	
+
 	s_ctrl->clk_info = s5k8aayx_clk_info;
 	s_ctrl->clk_info_size = ARRAY_SIZE(s5k8aayx_clk_info);
-	
+
 	return rc;
 #endif
 }
@@ -3022,15 +3011,15 @@ int32_t s5k8aayx_i2c_read(struct msm_sensor_ctrl_t *s_ctrl,
 	struct sensorb_cfg_data *cdata = (struct sensorb_cfg_data *)argp;
 	long rc = 0;
 	void *data;
-	
+
 	CDBG("%s start\n", __func__);
-	
+
 	data = kmalloc(cdata->cfg.i2c_info.length, GFP_KERNEL);
 	if(data == NULL){
 		pr_err("%s kmalloc failed\n", __func__);
 		return -EFAULT;
 	}
-	
+
 	CDBG("%s i2c_info.addr = 0x%0x\n", __func__, cdata->cfg.i2c_info.addr);
 	CDBG("%s i2c_info.length = 0x%0x\n", __func__, cdata->cfg.i2c_info.length);
 	rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_read_seq(s_ctrl->sensor_i2c_client, cdata->cfg.i2c_info.addr, data, cdata->cfg.i2c_info.length);
@@ -3039,7 +3028,7 @@ int32_t s5k8aayx_i2c_read(struct msm_sensor_ctrl_t *s_ctrl,
 		kfree(data);
 		return -EFAULT;
 	}
-	
+
 	if (copy_to_user((void *)cdata->cfg.i2c_info.data,
 		data,
 		cdata->cfg.i2c_info.length)){
@@ -3048,7 +3037,7 @@ int32_t s5k8aayx_i2c_read(struct msm_sensor_ctrl_t *s_ctrl,
 		return -EFAULT;
 	}
 	kfree(data);
-	
+
 	return rc;
 }
 
@@ -3079,39 +3068,39 @@ int32_t s5k8aayx_i2c_write(struct msm_sensor_ctrl_t *s_ctrl,
                }
 	}
        memset(reg_sec_setting, 0, size *(sizeof(struct msm_camera_i2c_seq_reg_array)));
-	
+
 	if(data_type == MSM_CAMERA_I2C_WORD_DATA){
-	
+
 		pos_reg_sec_setting = reg_sec_setting;
-		
+
 		array_size = 1;
 		conf_sec_array.addr_type = client->addr_type;
 		conf_sec_array.delay = 0;
 		conf_sec_array.reg_setting = reg_sec_setting;
-		
+
 		pos_reg_sec_setting->reg_addr = reg_conf_tbl->reg_addr;
 		pos_reg_sec_setting->reg_data[0] = ((reg_conf_tbl->reg_data) & 0xFF00) >> 8;
 		pos_reg_sec_setting->reg_data[1] = reg_conf_tbl->reg_data & 0xFF;
 		cur_size = 2;
 		reg_conf_tbl++;
-		
+
 		for (i = 1; i < size; i++) {
 			if(reg_conf_tbl->reg_addr == 0x0F12){
 				if(pos_reg_sec_setting->reg_addr != 0x0F12){
 					pos_reg_sec_setting->reg_data_size = cur_size;
-				
+
 					pos_reg_sec_setting++;
 					array_size++;
-					
+
 					cur_size = 0;
 					pos_reg_sec_setting->reg_addr = reg_conf_tbl->reg_addr;
 				}
 				if(cur_size >= 6){
 					pos_reg_sec_setting->reg_data_size = cur_size;
-					
+
 					pos_reg_sec_setting++;
 					array_size++;
-					
+
 					cur_size = 0;
 					pos_reg_sec_setting->reg_addr = reg_conf_tbl->reg_addr;
 				}
@@ -3120,10 +3109,10 @@ int32_t s5k8aayx_i2c_write(struct msm_sensor_ctrl_t *s_ctrl,
 				cur_size+=2;
 			} else {
 				pos_reg_sec_setting->reg_data_size = cur_size;
-				
+
 				pos_reg_sec_setting++;
 				array_size++;
-				
+
 				pos_reg_sec_setting->reg_addr = reg_conf_tbl->reg_addr;
 				pos_reg_sec_setting->reg_data[0] = ((reg_conf_tbl->reg_data) & 0xFF00) >> 8;
 				pos_reg_sec_setting->reg_data[1] = reg_conf_tbl->reg_data & 0xFF;
@@ -3139,17 +3128,17 @@ int32_t s5k8aayx_i2c_write(struct msm_sensor_ctrl_t *s_ctrl,
 		rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->
 			i2c_write_seq_table(s_ctrl->sensor_i2c_client,
 			&conf_sec_array);
-		
+
 		CDBG("%s rc = %d", __func__, (int)rc);
 
 	} else {
 
 		CDBG("%s data_type = %d", __func__, data_type);
 		rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_write_conf_tbl(client, reg_conf_tbl, size, data_type);
-			
+
 		CDBG("%s rc = %d", __func__, (int)rc);
 	}
-	
+
 //	kfree(reg_sec_setting);
 
        if(kz_state != 0) {
@@ -3159,7 +3148,7 @@ int32_t s5k8aayx_i2c_write(struct msm_sensor_ctrl_t *s_ctrl,
        }
 
 	CDBG("%s end", __func__);
-	
+
 	return rc;
 }
 
@@ -3492,15 +3481,12 @@ int32_t s5k8aayx_sensor_power_up(struct msm_sensor_ctrl_t *s_ctrl)
 	unsigned short hw_rev = SH_REV_ES0;
 
 	CDBG("%s\n", __func__);
-	
+
 	CDBG("%s MSM_TLMM_BASE + 0x2024 = 0x%0x\n", __func__, (unsigned int)MSM_TLMM_BASE + 0x2024);
 	CDBG("%s __raw_readl = 0x%0x\n", __func__, __raw_readl((MSM_TLMM_BASE + 0x2024)));
-	
+
 	__raw_writel(__raw_readl((MSM_TLMM_BASE + 0x2024)) | 0x02, (MSM_TLMM_BASE + 0x2024));
-	
-//	s_ctrl->clk_info = s5k8aayx_clk_info;
-//	s_ctrl->clk_info_size = ARRAY_SIZE(s5k8aayx_clk_info);
-	
+
 	hw_rev = sh_boot_get_hw_revision();
 	hw_rev = SH_REV_ES0;
 	if(hw_rev >= SH_REV_ES1) {
@@ -3514,7 +3500,7 @@ int32_t s5k8aayx_sensor_power_up(struct msm_sensor_ctrl_t *s_ctrl)
 	s5k8aayx_s_ctrl.power_setting_array.power_setting = s5k8aayx_power_setting;
 	s5k8aayx_s_ctrl.power_setting_array.size = ARRAY_SIZE(s5k8aayx_power_setting);
 #endif
-	
+
 	rc = msm_sensor_power_up(s_ctrl);
 	if (rc < 0) {
 		pr_err("%s: msm_sensor_power_up failed\n",
@@ -3546,10 +3532,10 @@ int32_t s5k8aayx_sensor_power_down(struct msm_sensor_ctrl_t *s_ctrl)
 #endif
 
 	msm_sensor_power_down(s_ctrl);
-	
+
 	CDBG("%s MSM_TLMM_BASE + 0x2024 = 0x%0x\n", __func__, (unsigned int)MSM_TLMM_BASE + 0x2024);
 	CDBG("%s __raw_readl = 0x%0x\n", __func__, __raw_readl(MSM_TLMM_BASE + 0x2024));
-	
+
 	__raw_writel(__raw_readl((MSM_TLMM_BASE + 0x2024)) & ~(0x02), (MSM_TLMM_BASE + 0x2024));
 
 	perf_unlock(&s5k8aayx_perf_lock);
